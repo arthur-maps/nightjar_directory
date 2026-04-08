@@ -785,7 +785,7 @@ function loadSTLBuffer(buffer) {
   geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
   geo.computeBoundingBox();
   geo.computeVertexNormals();
-  geo.position.z += 5;
+  
 
   const mat = new THREE.MeshStandardMaterial({
     color: 0x9fa89e,
