@@ -926,7 +926,7 @@ let prevMouse = { x: 0, y: 0 };
 let theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
 let phi = Math.asin(DEFAULT_CAM.y / Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2));
 let radius = Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2);
-const target = new THREE.Vector3(0, 1.5, 0);
+const target = new THREE.Vector3(0, 0, 0);
 
 function updateCamera() {
   phi = Math.max(-0.2, Math.min(Math.PI/2 - 0.05, phi));
