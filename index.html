@@ -880,8 +880,9 @@ function createMarkers() {
   MEMBERS.forEach(m => {
     const tex = getTexture(m.icon);
     const mat = tex
-      ? new THREE.SpriteMaterial({ map: tex, sizeAttenuation: true, depthTest: false })
-      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
+      ? new THREE.SpriteMaterial({ map: tex, transparent: true, sizeAttenuation: true, depthTest: false })
+      : new THREE.SpriteMaterial({ color: 0xffffff, transparent: true, sizeAttenuation: true, depthTest: false });
+    //  : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
 
     const sprite = new THREE.Sprite(mat);
     sprite.position.set(...m.position);
