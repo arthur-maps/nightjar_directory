@@ -857,7 +857,7 @@ function loadExteriorBuffer(buffer) {
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
-    opacity: 0.82,
+    opacity: 1,
   });
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
