@@ -803,6 +803,7 @@ function loadSTLBuffer(buffer) {
   bbox.getSize(size);
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = 8 / maxDim;
+  window._interiorScale = scale;  // save for exterior to reference
   geo.translate(-center.x, -center.y, -center.z);
 
   // Rotate to correct orientation: swap Y/Z so building stands upright
@@ -843,8 +844,9 @@ function loadExteriorBuffer(buffer) {
   bbox.getCenter(center);
   const size = new THREE.Vector3();
   bbox.getSize(size);
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const scale = 8 / maxDim;
+  //const maxDim = Math.max(size.x, size.y, size.z);
+  //const scale = 8 / maxDim;
+  const scale = window._interiorScale || 1;  // use interior's scale, not its own
   geo.translate(-center.x, -center.y, -center.z);
 
   // Same orientation correction as interior
