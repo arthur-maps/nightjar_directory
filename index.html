@@ -826,6 +826,86 @@ function loadSTLBuffer(buffer) {
   setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
 }
 
+ // ─────────────────────────────────────────────
+// EXTERIOR SILHOUETTE
+// ─────────────────────────────────────────────
+let exteriorMesh = null;
+let exteriorGroup = new THREE.Group();
+scene.add(exteriorGroup);
+
+function loadExteriorBuffer(buffer) {
+  if (exteriorMesh) { exteriorGroup.remove(exteriorMesh); exteriorMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 8 / maxDim;
+  geo.translate(-center.x, -center.y, -center.z);
+
+  // Same orientation correction as interior
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+
+  // Flat black, always behind — depthWrite off so it never occludes interior
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    side: THREE.BackSide,   // render inside-out so it shows as an outer shell
+    depthWrite: false,
+    transparent: true,
+    opacity: 0.82,
+  });
+  exteriorMesh = new THREE.Mesh(geo, mat);
+  exteriorMesh.scale.setScalar(scale);
+  exteriorMesh.renderOrder = -1;  // always draw before interior
+  exteriorGroup.add(exteriorMesh);
+}
+
+function loadDemoGeometry() {
+  // Build a simple multi-floor building placeholder
+  const g = new THREE.Group();
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x9fa89e, roughness: 0.9, metalness: 0.03 });
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x6e7068, roughness: 0.95 });
+
+  function addBox(x,y,z,w,h,d,mat) {
+    const geo = new THREE.BoxGeometry(w,h,d);
+    const m = new THREE.Mesh(geo, mat || wallMat);
+    m.position.set(x,y,z);
+    m.castShadow = true; m.receiveShadow = true;
+    g.add(m);
+  }
+
+  // Floors
+  for (let f = 0; f < 3; f++) {
+    addBox(0, f*2.0, 0, 8, 0.12, 6, floorMat);
+  }
+  // Outer walls
+  addBox(-4, 1.0, 0, 0.12, 3, 6);
+  addBox( 4, 1.0, 0, 0.12, 3, 6);
+  addBox(0, 1.0, -3, 8, 3, 0.12);
+  // Interior walls floor 0
+  addBox(-1, 0.6, 0, 0.1, 1.8, 4);
+  addBox(2, 0.6, 1, 0.1, 1.8, 3);
+  // Interior walls floor 1
+  addBox(-2, 2.6, -0.5, 0.1, 1.8, 4);
+  // Interior walls floor 2
+  addBox(1, 4.6, 0.5, 0.1, 1.8, 4);
+
+  stlGroup.add(g);
+}
+
+
+// ─────────────────────────────────────────────
+// STL FILENAMES — change these to match your files
+// ─────────────────────────────────────────────
+const STL_FILE          = 'nightjar_interior.stl';
+const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
+
+ // END ADD EXTERIOR
 function loadDemoGeometry() {
   // Build a simple multi-floor building placeholder
   const g = new THREE.Group();
@@ -1134,17 +1214,26 @@ createMarkers();
 theta = 0.65; phi = 0.5; radius = 14;
 updateCamera();
 animate();
-
-setProgress(40, 'Fetching model…');
-fetch(STL_FILE)
+const fetchInterior = fetch(STL_FILE)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(85, 'Parsing geometry…');
+    setProgress(80, 'Parsing interior…');
     loadSTLBuffer(buf);
+  });
+
+const fetchExterior = fetch(STL_FILE_EXTERIOR)
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
+    return r.arrayBuffer();
   })
+  .then(buf => {
+    loadExteriorBuffer(buf);
+  });
+
+Promise.all([fetchInterior, fetchExterior])
   .catch(err => {
     console.error(err);
     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
@@ -1155,6 +1244,27 @@ fetch(STL_FILE)
       'Run: python server.py — then open http://localhost:8000';
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
   });
+ 
+// setProgress(40, 'Fetching model…');
+// fetch(STL_FILE)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     setProgress(85, 'Parsing geometry…');
+//     loadSTLBuffer(buf);
+//   })
+//   .catch(err => {
+//     console.error(err);
+//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
+//     document.getElementById('loader-status').style.color = '#e06c75';
+//     document.getElementById('stl-notice').classList.add('visible');
+//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
+//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
+//       'Run: python server.py — then open http://localhost:8000';
+//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
+//   });
 </script>
 </body>
 </html>
