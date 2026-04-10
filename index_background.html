@@ -794,6 +794,7 @@ function loadSTLBuffer(buffer) {
   bbox.getSize(size);
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = 8 / maxDim;
+  window._interiorScale = scale;  // save for exterior to reference
   geo.translate(-center.x, -center.y, -center.z);
 
   // Rotate to correct orientation: swap Y/Z so building stands upright
