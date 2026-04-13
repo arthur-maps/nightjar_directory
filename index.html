@@ -907,8 +907,12 @@ function loadDemoGeometry() {
 // ─────────────────────────────────────────────
 // STL FILENAMES — change these to match your files
 // ─────────────────────────────────────────────
-const STL_FILE          = 'nightjar_interior.stl';
-const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
+
+const CACHE_BUST        = '?v=1';  // increment this number each time you push new STL files
+const STL_FILE          = 'nightjar_interior.stl' + CACHE_BUST;
+const STL_FILE_EXTERIOR = 'nightjar_exterior.stl'  + CACHE_BUST;
+// const STL_FILE          = 'nightjar_interior.stl';
+// const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
 
  // END ADD EXTERIOR
 function loadDemoGeometry() {
@@ -1219,26 +1223,27 @@ createMarkers();
 theta = 0.65; phi = 0.5; radius = 14;
 updateCamera();
 animate();
-const fetchInterior = fetch(STL_FILE)
+ 
+ // Load interior first, then exterior using its scale
+setProgress(40, 'Fetching models…');
+fetch(STL_FILE)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(80, 'Parsing interior…');
-    loadSTLBuffer(buf);
-  });
-
-const fetchExterior = fetch(STL_FILE_EXTERIOR)
+    setProgress(75, 'Parsing interior…');
+    loadSTLBuffer(buf);  // sets window._interiorScale
+    return fetch(STL_FILE_EXTERIOR);
+  })
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    loadExteriorBuffer(buf);
-  });
-
-Promise.all([fetchInterior, fetchExterior])
+    setProgress(95, 'Parsing exterior…');
+    loadExteriorBuffer(buf);  // _interiorScale is now guaranteed to exist
+  })
   .catch(err => {
     console.error(err);
     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
@@ -1249,6 +1254,36 @@ Promise.all([fetchInterior, fetchExterior])
       'Run: python server.py — then open http://localhost:8000';
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
   });
+// const fetchInterior = fetch(STL_FILE)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     setProgress(80, 'Parsing interior…');
+//     loadSTLBuffer(buf);
+//   });
+
+// const fetchExterior = fetch(STL_FILE_EXTERIOR)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     loadExteriorBuffer(buf);
+//   });
+
+// Promise.all([fetchInterior, fetchExterior])
+//   .catch(err => {
+//     console.error(err);
+//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
+//     document.getElementById('loader-status').style.color = '#e06c75';
+//     document.getElementById('stl-notice').classList.add('visible');
+//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
+//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
+//       'Run: python server.py — then open http://localhost:8000';
+//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
+//   });
  
 // setProgress(40, 'Fetching model…');
 // fetch(STL_FILE)
