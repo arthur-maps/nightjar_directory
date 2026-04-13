@@ -858,7 +858,7 @@ function loadExteriorBuffer(buffer) {
   const mat = new THREE.MeshBasicMaterial({
     //color: 0x000000,
     color: 0x4B0082,
-    side: THREE.BackSide,   // render inside-out so it shows as an outer shell
+    side: THREE.FrontSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
     opacity: 1,
