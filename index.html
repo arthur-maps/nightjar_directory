@@ -1191,7 +1191,7 @@ function animate() {
     const depth = Math.max(0, Math.min(1, (screenPos.z + 0.5) * 0.8));
     label.style.left = x + 'px';
     label.style.top = y + 'px';
-    label.style.opacity = String(0.6 + 0.4 * (1 - depth));
+    label.style.opacity = String(0.8 + 0.2 * (1 - depth));
   });
 
   // Hover cursor when over an anchor
