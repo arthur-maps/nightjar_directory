@@ -863,7 +863,7 @@ function loadExteriorBuffer(buffer) {
   });
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
-  exteriorMesh.position.y=1;
+  exteriorMesh.position.y=0.8;
   exteriorMesh.position.z=-0.5;
   exteriorMesh.renderOrder = -1;  // always draw before interior
   exteriorGroup.add(exteriorMesh);
