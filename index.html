@@ -857,7 +857,7 @@ function loadExteriorBuffer(buffer) {
   // Flat black, always behind — depthWrite off so it never occludes interior
   const mat = new THREE.MeshBasicMaterial({
     //color: 0x000000,
-    color: 0x7F00FF,
+    color: 0xA47DAB,
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
@@ -866,7 +866,7 @@ function loadExteriorBuffer(buffer) {
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
   exteriorMesh.position.y=0.95;
-  exteriorMesh.position.z=-0.5;
+  exteriorMesh.position.z=-0.45;
   exteriorMesh.renderOrder = -1;  // always draw before interior
   exteriorGroup.add(exteriorMesh);
 }
