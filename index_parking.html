@@ -1221,11 +1221,22 @@ function setView(view) {
  // exteriorGroup.visible = true;
 
   // Show markers + labels only in directory view
-  markers.forEach(m => {
-    m.visible = (view === 'directory');
-    m.sprite.visible = (view === 'directory');
-    m.label.classList.toggle('hidden', view === 'parking');
-  });
+  // markers.forEach(m => {
+  //   m.visible = (view === 'directory');
+  //   m.sprite.visible = (view === 'directory');
+  //   m.label.classList.toggle('hidden', view === 'parking');
+  // });
+ markers.forEach(m => {
+  const isDirectory = view === 'directory';
+
+  m.visible = isDirectory;
+  m.sprite.visible = isDirectory;
+
+  // FORCE hide properly
+  m.label.style.display = isDirectory ? 'block' : 'none';
+  m.label.style.opacity = isDirectory ? '1' : '0';
+  m.label.style.pointerEvents = isDirectory ? 'auto' : 'none';
+});
 
   // Close panel if switching away from directory
   if (view !== 'directory') closePanel();
