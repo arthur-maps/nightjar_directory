@@ -302,14 +302,14 @@
   }
   .marker-label-name {
     font-family: var(--serif);
-    font-size: 13px;
+    font-size: 10px;
     /*color: var(--text);*/
     color: rgba(0,0,0,1.0);
     display: block;
     line-height: 1.2;
   }
   .marker-label-role {
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     display: block;
@@ -863,7 +863,7 @@ function loadExteriorBuffer(buffer) {
 
   // Flat black, always behind — depthWrite off so it never occludes interior
   const mat = new THREE.MeshBasicMaterial({
-    color: 0x000000,
+    color: 0x545454,
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
