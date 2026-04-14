@@ -1346,7 +1346,7 @@ setProgress(40, 'Fetching models…');
   });
 
 
-Promise.all([fetchBuildings, fetchExterior])
+Promise.all([fetchBuildings, fetchParking])
   .catch(err => {
     console.error(err);
     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
