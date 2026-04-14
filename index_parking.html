@@ -1224,9 +1224,7 @@ function setView(view) {
   markers.forEach(m => {
     m.visible = (view === 'directory');
     m.sprite.visible = (view === 'directory');
-    m.label.classList.visible=(view === 'directory');
-    m.label.classList.hidden=(view === 'parking');
-   // m.label.classList.toggle('hidden', view !== 'directory');
+    m.label.classList.toggle('hidden', view === 'parking');
   });
 
   // Close panel if switching away from directory
