@@ -1022,13 +1022,13 @@ function getTexture(key) {
   return tex;
 }
 
+
 function createMarkers() {
   MEMBERS.forEach(m => {
     const tex = getTexture(m.icon);
     const mat = tex
-      ? new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false})
-      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), transparent: true, depthTest: false, depthWrite: false});
-    //  : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
+      ? new THREE.SpriteMaterial({ map: tex, sizeAttenuation: true, depthTest: false })
+      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
 
     const sprite = new THREE.Sprite(mat);
     sprite.position.set(...m.position);
@@ -1053,10 +1053,10 @@ function createMarkers() {
     label.addEventListener('mouseleave', () => label.classList.remove('hovered'));
     document.body.appendChild(label);
 
-   //markers.push({ sprite, label, member: m, visible: true });
-   markers.push({ sprite, label, member: m});
+    markers.push({ sprite, label, member: m, visible: true });
   });
 }
+
 
 // ─────────────────────────────────────────────
 // ORBIT CONTROLS (manual)
@@ -1224,7 +1224,8 @@ function setView(view) {
   markers.forEach(m => {
     m.visible = (view === 'directory');
     m.sprite.visible = (view === 'directory');
-    m.label.classList.toggle('hidden', view !== 'directory');
+    m.label.classList.visible=(view === 'directory');
+   // m.label.classList.toggle('hidden', view !== 'directory');
   });
 
   // Close panel if switching away from directory
