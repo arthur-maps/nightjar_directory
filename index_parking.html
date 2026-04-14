@@ -877,6 +877,44 @@ function loadExteriorBuffer(buffer) {
   exteriorGroup.add(exteriorMesh);
 }
 
+ // ─────────────────────────────────────────────
+// PARKING MAP STL
+// ─────────────────────────────────────────────
+let parkingMesh = null;
+let parkingGroup = new THREE.Group();
+parkingGroup.visible = false;   // hidden until parking view is selected
+scene.add(parkingGroup);
+
+function loadParkingBuffer(buffer) {
+  if (parkingMesh) { parkingGroup.remove(parkingMesh); parkingMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  // Use same scale reference as interior so parking map is proportional
+  const scale = window._interiorScale || (8 / Math.max(size.x, size.y, size.z));
+  geo.translate(-center.x, -center.y, -center.z);
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x9fa89e,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.DoubleSide,
+  });
+  parkingMesh = new THREE.Mesh(geo, mat);
+  parkingMesh.scale.setScalar(scale);
+  parkingMesh.castShadow = true;
+  parkingMesh.receiveShadow = true;
+  parkingGroup.add(parkingMesh);
+}
+
 function loadDemoGeometry() {
   // Build a simple multi-floor building placeholder
   const g = new THREE.Group();
@@ -956,43 +994,7 @@ function loadDemoGeometry() {
   stlGroup.add(g);
 }
 
-// ─────────────────────────────────────────────
-// PARKING MAP STL
-// ─────────────────────────────────────────────
-let parkingMesh = null;
-let parkingGroup = new THREE.Group();
-parkingGroup.visible = false;   // hidden until parking view is selected
-scene.add(parkingGroup);
 
-function loadParkingBuffer(buffer) {
-  if (parkingMesh) { parkingGroup.remove(parkingMesh); parkingMesh = null; }
-  const geo = parseSTL(buffer);
-  geo.computeBoundingBox();
-  geo.computeVertexNormals();
-  const bbox = geo.boundingBox;
-  const center = new THREE.Vector3();
-  bbox.getCenter(center);
-  const size = new THREE.Vector3();
-  bbox.getSize(size);
-  // Use same scale reference as interior so parking map is proportional
-  const scale = window._interiorScale || (8 / Math.max(size.x, size.y, size.z));
-  geo.translate(-center.x, -center.y, -center.z);
-  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  geo.computeBoundingBox();
-  geo.computeVertexNormals();
-
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x9fa89e,
-    roughness: 0.85,
-    metalness: 0.05,
-    side: THREE.DoubleSide,
-  });
-  parkingMesh = new THREE.Mesh(geo, mat);
-  parkingMesh.scale.setScalar(scale);
-  parkingMesh.castShadow = true;
-  parkingMesh.receiveShadow = true;
-  parkingGroup.add(parkingMesh);
-}
 
 
 // ─────────────────────────────────────────────
@@ -1212,6 +1214,7 @@ function setView(view) {
 
   // Show/hide models
   stlGroup.visible     = (view === 'directory');
+  exteriorGroup.visible = (view === 'directory');
   parkingGroup.visible = (view === 'parking');
   // Exterior silhouette always visible
  // exteriorGroup.visible = true;
