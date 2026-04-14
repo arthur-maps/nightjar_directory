@@ -1331,17 +1331,19 @@ fetch(STL_FILE)
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(95, 'Parsing exterior…');
+    setProgress(90, 'Parsing exterior…');
     loadExteriorBuffer(buf);  // _interiorScale is now guaranteed to exist
   })
-    .then(r => {
+fetch(STL_FILE_PARKING)
+  .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE_PARKING + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(98, 'Parsing parking…');
-    loadParkingBuffer(buf);  // _interiorScale is now guaranteed to exist
-  })
+   setProgress(95, 'Parking…');
+    loadParkingBuffer(buf);
+  });
+ 
   .catch(err => {
     console.error(err);
     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
