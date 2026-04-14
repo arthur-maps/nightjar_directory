@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Collective — Building Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+
+  :root {
+    --bg: #ffffff;
+    --surface: #16181c;
+    --surface2: #1e2026;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.15);
+    --accent-glow: rgba(200,169,110,0.4);
+    --text: #e8e4dc;
+    --text-muted: #7a7872;
+    --text-faint: #3a3830;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --mono: 'DM Mono', 'Courier New', monospace;
+    --panel-w: 360px;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    overflow: hidden;
+  }
+
+  /* ── CANVAS ── */
+  #canvas {
+    position: fixed;
+    inset: 0;
+    display: block;
+    cursor: grab;
+  }
+  #canvas.dragging { cursor: grabbing; }
+  #canvas.hovering { cursor: pointer; }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    background: linear-gradient(to bottom, rgba(13,14,16,0.95) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .wordmark-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .wordmark-sub {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .header-hint {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.8;
+  }
+  .header-hint span { color: var(--accent); }
+
+  /* ── FLOOR TABS ── */
+  #floor-nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 6px;
+    background: rgba(22,24,28,0.85);
+    border: 1px solid var(--border-strong);
+    border-radius: 40px;
+    padding: 6px;
+    backdrop-filter: blur(12px);
+  }
+  .floor-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 20px;
+    border-radius: 30px;
+    transition: all 0.2s;
+  }
+  .floor-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .floor-btn.active { background: var(--accent); color: #1a1400; }
+
+  /* ── MEMBER PANEL ── */
+  #panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: var(--panel-w);
+    height: 100%;
+    z-index: 20;
+    background: var(--surface);
+    border-left: 1px solid var(--border-strong);
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #panel.open { transform: translateX(0); }
+
+  .panel-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .panel-close {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .panel-floor-tag {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .close-btn {
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: var(--mono);
+  }
+  .close-btn:hover { color: var(--text); border-color: var(--border-strong); background: var(--surface2); }
+
+  .member-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .member-avatar img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+  }
+  .member-name {
+    font-family: var(--serif);
+    font-size: 26px;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .member-role {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .member-suite {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  .panel-section {
+    margin-bottom: 24px;
+  }
+  .panel-section-label {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-section p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text);
+    opacity: 0.85;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text);
+  }
+  .contact-row:last-child { border-bottom: none; }
+  .contact-label {
+    color: var(--text-muted);
+    min-width: 56px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .contact-val {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .contact-val:hover { color: var(--accent); }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(200,169,110,0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* ── PERSISTENT MARKER LABELS ── */
+  .marker-label {
+    position: fixed;
+    z-index: 15;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 18px));
+    transition: opacity 0.2s, transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .marker-label.hidden { opacity: 0; }
+  .marker-label-bubble {
+    /*background: rgba(16,17,20,0.92);*/
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    padding: 7px 12px 6px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .marker-label.hovered .marker-label-bubble {
+    /*border-color: rgba(255,255,255,0.8);*/
+    border-color: rgba(0,0,0,1.0);
+    background: rgba(255,255,255,0.97);
+    /*background: rgba(26,27,32,0.97);*/
+  }
+  .marker-label-name {
+    font-family: var(--serif);
+    font-size: 13px;
+    /*color: var(--text);*/
+    color: rgba(0,0,0,1.0);
+    display: block;
+    line-height: 1.2;
+  }
+  .marker-label-role {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+  }
+  .marker-label-stem {
+    width: 1px;
+    height: 14px;
+    background: var(--border-strong);
+  }
+  .marker-label.hovered .marker-label-stem {
+    background: rgba(255,255,255,0.32);
+  }
+
+  /* ── LOADING ── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    transition: opacity 0.6s;
+  }
+  #loader.hidden { opacity: 0; pointer-events: none; }
+  .loader-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    color: var(--text);
+  }
+  .loader-bar-track {
+    width: 240px;
+    height: 1px;
+    background: var(--border-strong);
+  }
+  .loader-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .loader-status {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── MINIMAP LEGEND ── */
+ /*
+  #legend {
+    position: fixed;
+    bottom: 100px;
+    left: 32px;
+    z-index: 10;
+    background: rgba(22,24,28,0.75);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    backdrop-filter: blur(8px);
+  }
+  .legend-title {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+ */
+
+  /* ── CONTROLS ── */
+  #controls {
+    position: fixed;
+    bottom: 32px;
+    left: 32px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ctrl-btn {
+    font-family: var(--mono);
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    background: rgba(22,24,28,0.85);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    backdrop-filter: blur(8px);
+  }
+  .ctrl-btn:hover { color: var(--text); background: var(--surface2); }
+
+  /* ── NO STL NOTICE ── */
+  #stl-notice {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    text-align: center;
+    pointer-events: none;
+    display: none;
+  }
+  #stl-notice.visible { display: block; }
+  .stl-notice-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+  .stl-notice-text {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .stl-notice-sub {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+  }
+
+
+
+
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-title">The Collective</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill" id="loader-bar"></div></div>
+  <div class="loader-status" id="loader-status">Initializing…</div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="canvas"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="wordmark">
+    <div class="wordmark-title">The Collective</div>
+    <div class="wordmark-sub">Building Directory</div>
+  </div>
+  <div class="header-hint">
+    <span>Drag</span> to rotate &nbsp;·&nbsp; <span>Scroll</span> to zoom<br>
+    <span>Click</span> a marker to explore
+  </div>
+</header>
+
+
+<!-- FLOOR NAV -->
+<div id="floor-nav">
+  <button class="floor-btn active" data-view="directory">Directory</button>
+  <button class="floor-btn" data-view="parking">Parking Map</button>
+</div>
+
+<!-- LEGEND -->
+ <!--
+<div id="legend">
+  <div class="legend-title">Member Type</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#c8a96e;"></div> Studio / Creative</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#6ea8c8;"></div> Office / Corporate</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#6ec88a;"></div> Common / Shared</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#c86e8a;"></div> Gallery / Event</div>
+</div>
+-->
+
+<!-- ZOOM CONTROLS -->
+<div id="controls">
+  <button class="ctrl-btn" id="zoom-in" title="Zoom in">+</button>
+  <button class="ctrl-btn" id="zoom-out" title="Zoom out">−</button>
+  <button class="ctrl-btn" id="reset-cam" title="Reset view">⌂</button>
+</div>
+
+<!-- MARKER LABELS rendered by JS -->
+
+<!-- NO-STL NOTICE -->
+<div id="stl-notice" class="visible">
+  <div class="stl-notice-icon">⬡</div>
+  <div class="stl-notice-text">Drop your .stl file to begin</div>
+  <div class="stl-notice-sub">Loading model…</div>
+</div>
+
+<!-- MEMBER PANEL -->
+<div id="panel">
+  <div class="panel-header">
+    <div class="panel-close">
+      <div class="panel-floor-tag" id="panel-floor"></div>
+      <button class="close-btn" id="close-panel">✕</button>
+    </div>
+    <div class="member-avatar" id="panel-avatar"></div>
+    <div class="member-name" id="panel-name"></div>
+    <div class="member-role" id="panel-role"></div>
+    <div class="member-suite" id="panel-suite"></div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-label">About</div>
+      <p id="panel-bio"></p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-label">Contact</div>
+      <div id="panel-contacts"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-label">Specialisms</div>
+      <div class="tag-cloud" id="panel-tags"></div>
+    </div>
+  </div>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// ─────────────────────────────────────────────
+// DIRECTORY DATA
+// Edit this array to populate your building.
+// position [x,y,z] is in 3D world space —
+// after loading your STL, tweak these to align
+// markers with your actual rooms.
+// ─────────────────────────────────────────────
+// Sprite images — add your own PNGs to the repo and reference them here.
+// All members sharing the same filename will reuse one cached texture.
+const SPRITE_IMAGES = {
+  flower: 'flowers.png',
+  figure: 'reclining_nb.png',
+  painting: 'starrynight.png',
+  artist: 'artist.png',
+  music1: 'music.png',
+  music2: 'bass.png',
+  massage1: 'massagetable.png',
+  massage2: 'bodywork.png',
+  // Add more as needed
+};
+
+const MEMBERS = [
+  {
+    id: 1,
+    name: "Sweet July Designs",
+    role: "Floral Arrangement",
+    suite: "Suite 101 · Ground Floor",
+    floor: 0,
+    type: "studio",
+    color: "#c8a96e",
+    icon: 'flower',   // key from SPRITE_IMAGES above
+    bio: "An architectural photography studio specialising in residential interiors and urban landscapes. Founded by Maren Kolbe in 2018, the studio works with leading developers and design magazines across Europe.",
+    tags: ["Photography","Architecture","Editorial","Print"],
+    contacts: [
+      { label: "Email", val: "hello@studiomaren.com", href: "mailto:hello@studiomaren.com" },
+      { label: "Web", val: "studiomaren.com", href: "https://studiomaren.com" },
+      { label: "Phone", val: "+1 352 555 0141" }
+    ],
+    position: [1.0, 0, 3.5]
+  },
+  {
+    id: 2,
+    name: "Bodywork by T",
+    role: "Massage Therapist",
+    suite: "Suite 210 · Level 2",
+    floor: 2,
+    type: "office",
+    color: "#6ea8c8",
+    icon: 'massage2',
+    bio: "A boutique commercial law firm with expertise in intellectual property, mergers & acquisitions, and technology law. Serving startups and mid-size companies since 2010.",
+    tags: ["IP Law","M&A","Technology","Contracts"],
+    contacts: [
+      { label: "Email", val: "contact@okafarlegal.com", href: "mailto:contact@okafarlegal.com" },
+      { label: "Web", val: "okafarlegal.com", href: "https://okafarlegal.com" },
+      { label: "Phone", val: "+1 352 555 0183" }
+    ],
+    position: [1.3, 0, -3.9]
+  },
+  {
+    id: 3,
+    name: "Nightdraw",
+    role: "Figure Drawing",
+    suite: "Suite 102 · Ground Floor",
+    floor: 0,
+    type: "studio",
+    color: "#c8a96e",
+    icon: 'figure',
+    bio: "A fermentation laboratory and tasting room producing small-batch kombucha, kefir, and seasonal botanical sodas. Open to the public Thursday through Sunday.",
+    tags: ["Fermentation","Food Science","Retail","Events"],
+    contacts: [
+      { label: "Email", val: "hello@thefermenter.co", href: "mailto:hello@thefermenter.co" },
+      { label: "Web", val: "thefermenter.co", href: "https://thefermenter.co" },
+      { label: "Phone", val: "+1 352 555 0102" }
+    ],
+    position: [0.0, 0.0, 1.5]
+  },
+  {
+    id: 4,
+    name: "Gallery",
+    role: "Exhibition & Event Space",
+    suite: "Level 1 · East Wing",
+    floor: 1,
+    type: "common",
+    color: "#6ec88a",
+    icon: 'painting',
+    bio: "A shared workspace with 40 hot-desks, two bookable meeting rooms, a podcast suite, and a rooftop terrace. Available to all building members and day-pass visitors.",
+    tags: ["Co-working","Meeting Rooms","Events","Wifi"],
+    contacts: [
+      { label: "Book", val: "Book a desk →", href: "https://commonroom.building" },
+      { label: "Email", val: "space@commonroom.building", href: "mailto:space@commonroom.building" }
+    ],
+    position: [0.0, 0.0, -1.5]
+  },
+  {
+    id: 5,
+    name: "Keely Lubin LMT",
+    role: "Massage Therapist",
+    suite: "Ground Floor · Entrance",
+    floor: 0,
+    type: "gallery",
+    color: "#c86e8a",
+    icon: 'massage1',
+    bio: "A rotating exhibition space showcasing emerging artists and designers from the local region. The gallery hosts quarterly openings, artist talks, and private hire events for up to 120 guests.",
+    tags: ["Gallery","Events","Art","Hire"],
+    contacts: [
+      { label: "Web", val: "vestibulegallery.com", href: "https://vestibulegallery.com" },
+      { label: "Email", val: "curate@vestibulegallery.com", href: "mailto:curate@vestibulegallery.com" }
+    ],
+    position: [0.7, 0, -3.1]
+  },
+  {
+    id: 6,
+    name: "Gainesville Oldtime",
+    role: "Open Music Jams",
+    suite: "Suite 115 · Level 1",
+    floor: 1,
+    type: "studio",
+    color: "#c8a96e",
+    icon: 'music2',
+    bio: "A four-person branding and identity studio with a focus on cultural institutions, independent publishers, and architecture firms. Parallel Studio is known for typographically-driven, research-led work.",
+    tags: ["Branding","Identity","Print","Typography"],
+    contacts: [
+      { label: "Email", val: "studio@parallelstudio.co", href: "mailto:studio@parallelstudio.co" },
+      { label: "Web", val: "parallelstudio.co", href: "https://parallelstudio.co" }
+    ],
+    position: [0.5, 0, 0]
+  }
+];
+
+// ─────────────────────────────────────────────
+// THREE.JS SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+
+// Fog
+scene.fog = new THREE.FogExp2(0xffffff, 0.04);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+camera.position.set(6, 6, 10);
+camera.lookAt(0, 0, 0);
+
+// Default camera state
+const DEFAULT_CAM = { x: 6, y: 6, z: 10 };
+
+// Camera presets per view — tweak radius/phi/theta to taste
+const CAM_PRESETS = {
+  directory: { theta: 0.65, phi: 0.5,  radius: 14 },
+  parking:   { theta: 0.65, phi: 0.75, radius: 28 },
+};
+
+// ─────────────────────────────────────────────
+// LIGHTING
+// ─────────────────────────────────────────────
+const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.3);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+sunLight.position.set(10, 20, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048, 2048);
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x6ea8c8, 0.4);
+fillLight.position.set(-8, 5, -6);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xc8a96e, 0.25);
+rimLight.position.set(0, -4, -8);
+scene.add(rimLight);
+
+// ─────────────────────────────────────────────
+// GRID (floor reference)
+// ─────────────────────────────────────────────
+const grid = new THREE.GridHelper(30, 30, 0x222218, 0x1a1a16);
+grid.position.y = -0.7;
+scene.add(grid);
+
+// ─────────────────────────────────────────────
+// STL MODEL
+// ─────────────────────────────────────────────
+let stlMesh = null;
+let stlGroup = new THREE.Group();
+scene.add(stlGroup);
+
+function parseSTL(buffer) {
+  // Auto-detect ASCII vs binary
+  const text = new TextDecoder().decode(new Uint8Array(buffer, 0, 80));
+  if (text.startsWith('solid') && /facet/i.test(new TextDecoder().decode(buffer).slice(0, 256))) {
+    return parseASCIISTL(new TextDecoder().decode(buffer));
+  } else {
+    return parseBinarySTL(buffer);
+  }
+}
+
+function parseBinarySTL(buffer) {
+  const view = new DataView(buffer);
+  const numTriangles = view.getUint32(80, true);
+  const positions = [];
+  const normals = [];
+  let offset = 84;
+  for (let i = 0; i < numTriangles; i++) {
+    const nx = view.getFloat32(offset, true);
+    const ny = view.getFloat32(offset+4, true);
+    const nz = view.getFloat32(offset+8, true);
+    offset += 12;
+    for (let v = 0; v < 3; v++) {
+      positions.push(view.getFloat32(offset,true), view.getFloat32(offset+4,true), view.getFloat32(offset+8,true));
+      normals.push(nx, ny, nz);
+      offset += 12;
+    }
+    offset += 2;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  return geo;
+}
+
+function parseASCIISTL(text) {
+  const positions = [], normals = [];
+  const lines = text.split('\n');
+  let curNormal = [0,0,0];
+  for (const line of lines) {
+    const t = line.trim();
+    if (t.startsWith('facet normal')) {
+      const p = t.split(/\s+/);
+      curNormal = [parseFloat(p[2]), parseFloat(p[3]), parseFloat(p[4])];
+    } else if (t.startsWith('vertex')) {
+      const p = t.split(/\s+/);
+      positions.push(parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3]));
+      normals.push(...curNormal);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  return geo;
+}
+
+function loadSTLBuffer(buffer) {
+  if (stlMesh) { stlGroup.remove(stlMesh); stlMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 8 / maxDim;
+  window._interiorScale = scale;  // save for exterior to reference
+  geo.translate(-center.x, -center.y, -center.z);
+
+  // Rotate to correct orientation: swap Y/Z so building stands upright
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x9fa89e,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.DoubleSide,
+  });
+  stlMesh = new THREE.Mesh(geo, mat);
+  stlMesh.scale.setScalar(scale);
+  stlMesh.castShadow = true;
+  stlMesh.receiveShadow = true;
+  stlGroup.add(stlMesh);
+  document.getElementById('stl-notice').classList.remove('visible');
+  setProgress(100, 'Model loaded');
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
+}
+
+ // ─────────────────────────────────────────────
+// EXTERIOR SILHOUETTE
+// ─────────────────────────────────────────────
+let exteriorMesh = null;
+let exteriorGroup = new THREE.Group();
+scene.add(exteriorGroup);
+
+function loadExteriorBuffer(buffer) {
+  if (exteriorMesh) { exteriorGroup.remove(exteriorMesh); exteriorMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  //const maxDim = Math.max(size.x, size.y, size.z);
+  //const scale = 8 / maxDim;
+  const scale = window._interiorScale || 1;  // use interior's scale, not its own
+  geo.translate(-center.x, -center.y, -center.z);
+
+  // Same orientation correction as interior
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+
+  // Flat black, always behind — depthWrite off so it never occludes interior
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x808080,
+    side: THREE.BackSide,   // render inside-out so it shows as an outer shell
+    depthWrite: false,
+    transparent: true,
+    opacity: 1,
+  });
+  exteriorMesh = new THREE.Mesh(geo, mat);
+  exteriorMesh.scale.setScalar(scale);
+  exteriorMesh.position.y=0.95;
+  exteriorMesh.position.z=-0.45;
+  exteriorMesh.renderOrder = -1;  // always draw before interior
+  exteriorGroup.add(exteriorMesh);
+}
+
+function loadDemoGeometry() {
+  // Build a simple multi-floor building placeholder
+  const g = new THREE.Group();
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x9fa89e, roughness: 0.9, metalness: 0.03 });
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x6e7068, roughness: 0.95 });
+
+  function addBox(x,y,z,w,h,d,mat) {
+    const geo = new THREE.BoxGeometry(w,h,d);
+    const m = new THREE.Mesh(geo, mat || wallMat);
+    m.position.set(x,y,z);
+    m.castShadow = true; m.receiveShadow = true;
+    g.add(m);
+  }
+
+  // Floors
+  for (let f = 0; f < 3; f++) {
+    addBox(0, f*2.0, 0, 8, 0.12, 6, floorMat);
+  }
+  // Outer walls
+  addBox(-4, 1.0, 0, 0.12, 3, 6);
+  addBox( 4, 1.0, 0, 0.12, 3, 6);
+  addBox(0, 1.0, -3, 8, 3, 0.12);
+  // Interior walls floor 0
+  addBox(-1, 0.6, 0, 0.1, 1.8, 4);
+  addBox(2, 0.6, 1, 0.1, 1.8, 3);
+  // Interior walls floor 1
+  addBox(-2, 2.6, -0.5, 0.1, 1.8, 4);
+  // Interior walls floor 2
+  addBox(1, 4.6, 0.5, 0.1, 1.8, 4);
+
+  stlGroup.add(g);
+}
+
+
+// ─────────────────────────────────────────────
+// STL FILENAMES — change these to match your files
+// ─────────────────────────────────────────────
+
+const CACHE_BUST        = '?v=1';  // increment this number each time you push new STL files
+const STL_FILE          = 'nightjar_interior.stl' + CACHE_BUST;
+const STL_FILE_EXTERIOR = 'nightjar_exterior.stl'  + CACHE_BUST;
+const STL_FILE_PARKING  = 'parking_map.stl'  + CACHE_BUST; 
+// const STL_FILE          = 'nightjar_interior.stl';
+// const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
+
+
+function loadDemoGeometry() {
+  // Build a simple multi-floor building placeholder
+  const g = new THREE.Group();
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x9fa89e, roughness: 0.9, metalness: 0.03 });
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x6e7068, roughness: 0.95 });
+
+  function addBox(x,y,z,w,h,d,mat) {
+    const geo = new THREE.BoxGeometry(w,h,d);
+    const m = new THREE.Mesh(geo, mat || wallMat);
+    m.position.set(x,y,z);
+    m.castShadow = true; m.receiveShadow = true;
+    g.add(m);
+  }
+
+  // Floors
+  for (let f = 0; f < 3; f++) {
+    addBox(0, f*2.0, 0, 8, 0.12, 6, floorMat);
+  }
+  // Outer walls
+  addBox(-4, 1.0, 0, 0.12, 3, 6);
+  addBox( 4, 1.0, 0, 0.12, 3, 6);
+  addBox(0, 1.0, -3, 8, 3, 0.12);
+  // Interior walls floor 0
+  addBox(-1, 0.6, 0, 0.1, 1.8, 4);
+  addBox(2, 0.6, 1, 0.1, 1.8, 3);
+  // Interior walls floor 1
+  addBox(-2, 2.6, -0.5, 0.1, 1.8, 4);
+  // Interior walls floor 2
+  addBox(1, 4.6, 0.5, 0.1, 1.8, 4);
+
+  stlGroup.add(g);
+}
+
+// ─────────────────────────────────────────────
+// PARKING MAP STL
+// ─────────────────────────────────────────────
+let parkingMesh = null;
+let parkingGroup = new THREE.Group();
+parkingGroup.visible = false;   // hidden until parking view is selected
+scene.add(parkingGroup);
+
+function loadParkingBuffer(buffer) {
+  if (parkingMesh) { parkingGroup.remove(parkingMesh); parkingMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  // Use same scale reference as interior so parking map is proportional
+  const scale = window._interiorScale || (8 / Math.max(size.x, size.y, size.z));
+  geo.translate(-center.x, -center.y, -center.z);
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x9fa89e,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.DoubleSide,
+  });
+  parkingMesh = new THREE.Mesh(geo, mat);
+  parkingMesh.scale.setScalar(scale);
+  parkingMesh.castShadow = true;
+  parkingMesh.receiveShadow = true;
+  parkingGroup.add(parkingMesh);
+}
+
+
+// ─────────────────────────────────────────────
+// STL FILENAME — change this to match your file
+// ─────────────────────────────────────────────
+//const STL_FILE = 'nightjar_interior.stl';
+
+// ─────────────────────────────────────────────
+// ROOM MARKERS
+// ─────────────────────────────────────────────
+const markers = [];
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2(-9999, -9999);
+
+// Texture cache — each unique filename is loaded only once
+const _textureCache = {};
+
+function getTexture(key) {
+  const file = SPRITE_IMAGES[key];
+  if (!file) return null;
+  if (_textureCache[file]) return _textureCache[file];
+  const tex = new THREE.TextureLoader().load(file);
+  tex.minFilter = THREE.LinearFilter;
+  _textureCache[file] = tex;
+  return tex;
+}
+
+function createMarkers() {
+  MEMBERS.forEach(m => {
+    const tex = getTexture(m.icon);
+    const mat = tex
+      ? new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false})
+      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), transparent: true, depthTest: false, depthWrite: false});
+    //  : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
+
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(...m.position);
+    sprite.scale.set(0.7, 0.7, 1);
+    sprite.userData = { memberId: m.id };
+    scene.add(sprite);
+
+    // Persistent HTML label
+    const label = document.createElement('div');
+    label.className = 'marker-label';
+    label.innerHTML = `
+      <div class="marker-label-bubble">
+        <span class="marker-label-name">${m.name}</span>
+        <span class="marker-label-role" style="color:${m.color}">${m.role}</span>
+      </div>
+      <div class="marker-label-stem"></div>
+    `;
+    label.style.cursor = 'pointer';
+    label.style.pointerEvents = 'auto';
+    label.addEventListener('click', () => openPanel(m));
+    label.addEventListener('mouseenter', () => label.classList.add('hovered'));
+    label.addEventListener('mouseleave', () => label.classList.remove('hovered'));
+    document.body.appendChild(label);
+
+    markers.push({ sprite, label, member: m, visible: true });
+  });
+}
+
+// ─────────────────────────────────────────────
+// ORBIT CONTROLS (manual)
+// ─────────────────────────────────────────────
+let isDragging = false;
+let prevMouse = { x: 0, y: 0 };
+let theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
+let phi = Math.asin(DEFAULT_CAM.y / Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2));
+let radius = Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2);
+const target = new THREE.Vector3(0, 0, 0);
+
+function updateCamera() {
+  phi = Math.max(-0.2, Math.min(Math.PI/2 - 0.05, phi));
+  radius = Math.max(3, Math.min(40, radius));
+  const x = target.x + radius * Math.cos(phi) * Math.sin(theta);
+  const y = target.y + radius * Math.sin(phi);
+  const z = target.z + radius * Math.cos(phi) * Math.cos(theta);
+  camera.position.set(x, y, z);
+  camera.lookAt(target);
+}
+
+canvas.addEventListener('mousedown', e => {
+  isDragging = true;
+  prevMouse = { x: e.clientX, y: e.clientY };
+  canvas.classList.add('dragging');
+});
+window.addEventListener('mouseup', () => { isDragging = false; canvas.classList.remove('dragging'); });
+window.addEventListener('mousemove', e => {
+  if (isDragging) {
+    const dx = e.clientX - prevMouse.x;
+    const dy = e.clientY - prevMouse.y;
+    theta -= dx * 0.008;
+    phi += dy * 0.006;
+    prevMouse = { x: e.clientX, y: e.clientY };
+  }
+  // Update mouse for raycasting
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+});
+canvas.addEventListener('wheel', e => {
+  radius += e.deltaY * 0.015;
+  e.preventDefault();
+}, { passive: false });
+
+// Touch
+let lastTouch = null;
+canvas.addEventListener('touchstart', e => {
+  lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+canvas.addEventListener('touchmove', e => {
+  if (!lastTouch) return;
+  const dx = e.touches[0].clientX - lastTouch.x;
+  const dy = e.touches[0].clientY - lastTouch.y;
+  theta -= dx * 0.01;
+  phi += dy * 0.008;
+  lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+canvas.addEventListener('touchend', () => { lastTouch = null; });
+
+// Zoom buttons
+document.getElementById('zoom-in').addEventListener('click', () => { radius -= 1.5; });
+document.getElementById('zoom-out').addEventListener('click', () => { radius += 1.5; });
+document.getElementById('reset-cam').addEventListener('click', () => {
+  theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
+  phi = 0.55;
+  radius = 14;
+  closePanel();
+});
+
+// ─────────────────────────────────────────────
+// HOVER & CLICK
+// ─────────────────────────────────────────────
+let hoveredMarker = null;
+
+function getHoveredMarker() {
+  raycaster.setFromCamera(mouse, camera);
+  const sprites = markers.map(m => m.sprite);
+  const hits = raycaster.intersectObjects(sprites);
+  if (hits.length > 0) {
+    return markers.find(m => m.sprite === hits[0].object);
+  }
+  return null;
+}
+
+canvas.addEventListener('click', e => {
+  if (isDragging) return;
+  const hit = getHoveredMarker();
+  if (hit) openPanel(hit.member);
+});
+
+// ─────────────────────────────────────────────
+// PANEL
+// ─────────────────────────────────────────────
+function openPanel(member) {
+  document.getElementById('panel-floor').textContent = member.suite;
+  document.getElementById('panel-name').textContent = member.name;
+  document.getElementById('panel-role').textContent = member.role;
+  document.getElementById('panel-suite').textContent = member.suite;
+  document.getElementById('panel-bio').textContent = member.bio;
+
+  const initials = member.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  const avatar = document.getElementById('panel-avatar');
+  avatar.innerHTML = `<span style="color:${member.color}">${initials}</span>`;
+  avatar.style.borderColor = member.color;
+  avatar.style.background = member.color + '22';
+
+  const contacts = document.getElementById('panel-contacts');
+  contacts.innerHTML = member.contacts.map(c =>
+    `<div class="contact-row">
+      <span class="contact-label">${c.label}</span>
+      ${c.href
+        ? `<a class="contact-val" href="${c.href}">${c.val}</a>`
+        : `<span class="contact-val">${c.val}</span>`}
+    </div>`
+  ).join('');
+
+  const tags = document.getElementById('panel-tags');
+  tags.innerHTML = member.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  document.getElementById('panel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+}
+document.getElementById('close-panel').addEventListener('click', closePanel);
+
+// ─────────────────────────────────────────────
+// FLOOR FILTER
+// ─────────────────────────────────────────────
+// let activeFloor = 'all';
+// document.querySelectorAll('.floor-btn').forEach(btn => {
+//   btn.addEventListener('click', () => {
+//     document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
+//     btn.classList.add('active');
+//     activeFloor = btn.dataset.floor;
+//     markers.forEach(m => {
+//       const visible = activeFloor === 'all' || m.member.floor === parseInt(activeFloor);
+//       m.visible = visible;
+//       m.sprite.visible = visible;
+//       m.label.classList.toggle('hidden', !visible);
+//     });
+//     if (stlGroup.children.length) {
+//       stlGroup.children.forEach(child => { child.visible = true; });
+//     }
+//   });
+// });
+// ─────────────────────────────────────────────
+// VIEW SWITCHER
+// ─────────────────────────────────────────────
+let activeView = 'directory';
+
+function setView(view) {
+  activeView = view;
+
+  // Show/hide models
+  stlGroup.visible     = (view === 'directory');
+  parkingGroup.visible = (view === 'parking');
+  // Exterior silhouette always visible
+  exteriorGroup.visible = true;
+
+  // Show markers + labels only in directory view
+  markers.forEach(m => {
+    m.visible = (view === 'directory');
+    m.sprite.visible = (view === 'directory');
+    m.label.classList.toggle('hidden', view !== 'directory');
+  });
+
+  // Close panel if switching away from directory
+  if (view !== 'directory') closePanel();
+
+  // Animate camera to preset
+  const preset = CAM_PRESETS[view];
+  if (preset) {
+    theta  = preset.theta;
+    phi    = preset.phi;
+    radius = preset.radius;
+  }
+}
+
+document.querySelectorAll('.floor-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    setView(btn.dataset.view);
+  });
+});
+
+
+// ─────────────────────────────────────────────
+// FILE LOADING
+// ─────────────────────────────────────────────
+function setProgress(pct, msg) {
+  document.getElementById('loader-bar').style.width = pct + '%';
+  document.getElementById('loader-status').textContent = msg;
+}
+
+
+
+
+// ─────────────────────────────────────────────
+// RENDER LOOP
+// ─────────────────────────────────────────────
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+
+  updateCamera();
+
+  // Position labels above each sprite
+  markers.forEach(({ sprite, label, visible }) => {
+    if (!visible) return;
+    const screenPos = sprite.position.clone().project(camera);
+    if (screenPos.z > 1 || Math.abs(screenPos.x) > 1.4 || Math.abs(screenPos.y) > 1.4) {
+      label.style.opacity = '0';
+      return;
+    }
+    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+    const depth = Math.max(0, Math.min(1, (screenPos.z + 0.5) * 0.8));
+    label.style.left = x + 'px';
+    label.style.top = y + 'px';
+    label.style.opacity = String(0.8 + 0.2 * (1 - depth));
+  });
+
+  // Hover cursor when over an anchor
+  if (!isDragging) {
+    const hit = getHoveredMarker();
+    if (hit !== hoveredMarker) {
+      hoveredMarker = hit;
+      canvas.classList.toggle('hovering', !!hit);
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+// ─────────────────────────────────────────────
+// RESIZE
+// ─────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+setProgress(20, 'Setting up scene…');
+createMarkers();
+theta = 0.65; phi = 0.5; radius = 14;
+updateCamera();
+animate();
+ 
+ // Load interior first, then exterior using its scale
+setProgress(40, 'Fetching models…');
+fetch(STL_FILE)
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
+    return r.arrayBuffer();
+  })
+  .then(buf => {
+    setProgress(75, 'Parsing interior…');
+    loadSTLBuffer(buf);  // sets window._interiorScale
+    return fetch(STL_FILE_EXTERIOR);
+  })
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
+    return r.arrayBuffer();
+  })
+  .then(buf => {
+    setProgress(95, 'Parsing exterior…');
+    loadExteriorBuffer(buf);  // _interiorScale is now guaranteed to exist
+  })
+    .then(r => {
+    if (!r.ok) throw new Error('Could not load ' + STL_FILE_PARKING + ' (HTTP ' + r.status + ')');
+    return r.arrayBuffer();
+  })
+  .then(buf => {
+    setProgress(98, 'Parsing parking…');
+    loadParkingBuffer(buf);  // _interiorScale is now guaranteed to exist
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById('loader-status').textContent = 'Error: ' + err.message;
+    document.getElementById('loader-status').style.color = '#e06c75';
+    document.getElementById('stl-notice').classList.add('visible');
+    document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
+    document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
+      'Run: python server.py — then open http://localhost:8000';
+    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
+  });
+  
+// const fetchInterior = fetch(STL_FILE)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     setProgress(80, 'Parsing interior…');
+//     loadSTLBuffer(buf);
+//   });
+
+// const fetchExterior = fetch(STL_FILE_EXTERIOR)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     loadExteriorBuffer(buf);
+//   });
+
+// Promise.all([fetchInterior, fetchExterior])
+//   .catch(err => {
+//     console.error(err);
+//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
+//     document.getElementById('loader-status').style.color = '#e06c75';
+//     document.getElementById('stl-notice').classList.add('visible');
+//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
+//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
+//       'Run: python server.py — then open http://localhost:8000';
+//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
+//   });
+ 
+// setProgress(40, 'Fetching model…');
+// fetch(STL_FILE)
+//   .then(r => {
+//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
+//     return r.arrayBuffer();
+//   })
+//   .then(buf => {
+//     setProgress(85, 'Parsing geometry…');
+//     loadSTLBuffer(buf);
+//   })
+//   .catch(err => {
+//     console.error(err);
+//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
+//     document.getElementById('loader-status').style.color = '#e06c75';
+//     document.getElementById('stl-notice').classList.add('visible');
+//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
+//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
+//       'Run: python server.py — then open http://localhost:8000';
+//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
+//   });
+</script>
+</body>
+</html>
