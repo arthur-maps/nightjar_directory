@@ -1310,7 +1310,8 @@ window.addEventListener('resize', () => {
 // ─────────────────────────────────────────────
 setProgress(20, 'Setting up scene…');
 createMarkers();
-theta = 0.65; phi = 0.5; radius = 14;
+//theta = 0.65; phi = 0.5; radius = 14;
+theta = CAM_PRESETS.directory.theta; phi = CAM_PRESETS.directory.phi; radius = CAM_PRESETS.directory.radius;
 updateCamera();
 animate();
  
@@ -1343,6 +1344,8 @@ fetch(STL_FILE_PARKING)
    setProgress(95, 'Parking…');
     loadParkingBuffer(buf);
   });
+
+
  
   .catch(err => {
     console.error(err);
