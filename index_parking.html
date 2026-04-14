@@ -321,8 +321,8 @@
     background: var(--border-strong);
   }
   .marker-label.hovered .marker-label-stem {
-   /* background: rgba(255,255,255,0.32);*/
-   background: rgba(0,0,0,0.9);
+    background: rgba(255,255,255,0.32);
+
   }
 
   /* ── LOADING ── */
@@ -864,11 +864,11 @@ function loadExteriorBuffer(buffer) {
 
   // Flat black, always behind — depthWrite off so it never occludes interior
   const mat = new THREE.MeshBasicMaterial({
-    color: 0x545454,
+    color: 0x000000,
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
-    opacity: 1,
+    opacity: 0.8,
   });
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
