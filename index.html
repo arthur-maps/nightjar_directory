@@ -295,8 +295,10 @@
     white-space: nowrap;
   }
   .marker-label.hovered .marker-label-bubble {
-    border-color: rgba(255,255,255,0.8);
-    background: rgba(26,27,32,0.97);
+    /*border-color: rgba(255,255,255,0.8);*/
+    border-color: rgba(0,0,0,1.0);
+    background: rgba(255,255,255,0.97);
+    /*background: rgba(26,27,32,0.97);*/
   }
   .marker-label-name {
     font-family: var(--serif);
@@ -857,7 +859,7 @@ function loadExteriorBuffer(buffer) {
 
   // Flat black, always behind — depthWrite off so it never occludes interior
   const mat = new THREE.MeshBasicMaterial({
-    color: 0x000000,
+    color: 0x9CAF88,
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
