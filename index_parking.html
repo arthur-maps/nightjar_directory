@@ -325,6 +325,102 @@
 
   }
 
+ /* ── PARKING ZONE LABELS ── */
+  .parking-label {
+    position: fixed;
+    z-index: 15;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 14px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transition: opacity 0.2s;
+  }
+  .parking-label.hidden { opacity: 0 !important; pointer-events: none !important; }
+  .parking-label-bubble {
+    background: rgba(30, 60, 40, 0.93);
+    border: 1px solid rgba(80, 200, 100, 0.45);
+    border-radius: 6px;
+    padding: 6px 11px 5px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .parking-label-bubble:hover {
+    background: rgba(30, 80, 45, 0.97);
+    border-color: rgba(80, 200, 100, 0.8);
+  }
+  .parking-label-zone {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #7de898;
+    display: block;
+    line-height: 1.2;
+  }
+  .parking-label-hours {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: rgba(180, 230, 190, 0.75);
+    display: block;
+    margin-top: 2px;
+  }
+  .parking-label-stem {
+    width: 1px;
+    height: 12px;
+    background: rgba(80, 200, 100, 0.35);
+  }
+
+  /* Parking tooltip popup */
+  #parking-tooltip {
+    position: fixed;
+    z-index: 30;
+    background: rgba(20, 45, 28, 0.97);
+    border: 1px solid rgba(80, 200, 100, 0.5);
+    border-radius: 10px;
+    padding: 14px 18px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s;
+    backdrop-filter: blur(12px);
+    max-width: 240px;
+    min-width: 180px;
+  }
+  #parking-tooltip.visible { opacity: 1; }
+  .pt-zone {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7de898;
+    margin-bottom: 6px;
+  }
+  .pt-rule {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(80,200,100,0.12);
+    font-size: 11px;
+  }
+  .pt-rule:last-child { border-bottom: none; }
+  .pt-rule-day {
+    color: rgba(180,230,190,0.6);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .pt-rule-hours { color: #e8e4dc; }
+
+
   /* ── LOADING ── */
   #loader {
     position: fixed;
@@ -517,6 +613,9 @@
   <div class="stl-notice-text">Drop your .stl file to begin</div>
   <div class="stl-notice-sub">Loading model…</div>
 </div>
+
+ <!-- PARKING TOOLTIP -->
+<div id="parking-tooltip"></div>
 
 <!-- MEMBER PANEL -->
 <div id="panel">
@@ -1058,6 +1157,78 @@ function createMarkers() {
   });
 }
 
+ // ─────────────────────────────────────────────
+// PARKING MARKERS
+// ─────────────────────────────────────────────
+const parkingMarkers = [];
+const parkingTooltip = document.getElementById('parking-tooltip');
+let activeParkingZone = null;
+
+function createParkingMarkers() {
+  PARKING_ZONES.forEach(z => {
+    // Invisible Three.js sprite for 3D position (raycasting)
+    const mat = new THREE.SpriteMaterial({
+      color: 0x50c864,
+      sizeAttenuation: true,
+      depthTest: false,
+      transparent: true,
+      opacity: 0,  // invisible — HTML label is the visual
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(...z.position);
+    sprite.scale.set(0.6, 0.6, 1);
+    sprite.userData = { zoneId: z.id };
+    sprite.visible = false;  // starts hidden, shown in parking view
+    scene.add(sprite);
+
+    // HTML label
+    const label = document.createElement('div');
+    label.className = 'parking-label hidden';
+    label.innerHTML = `
+      <div class="parking-label-bubble">
+        <span class="parking-label-zone">${z.name}</span>
+        <span class="parking-label-hours">${z.hours}</span>
+      </div>
+      <div class="parking-label-stem"></div>
+    `;
+
+    label.querySelector('.parking-label-bubble').addEventListener('click', () => {
+      showParkingTooltip(z, label);
+    });
+    document.body.appendChild(label);
+
+    parkingMarkers.push({ sprite, label, zone: z, visible: false });
+  });
+}
+
+function showParkingTooltip(zone, anchorLabel) {
+  if (activeParkingZone === zone.id) {
+    hideParkingTooltip();
+    return;
+  }
+  activeParkingZone = zone.id;
+  parkingTooltip.innerHTML = `
+    <div class="pt-zone">${zone.name}</div>
+    ${zone.rules.map(r => `
+      <div class="pt-rule">
+        <span class="pt-rule-day">${r.days}</span>
+        <span class="pt-rule-hours">${r.hours}</span>
+      </div>`).join('')}
+  `;
+  // Position near the label
+  const rect = anchorLabel.getBoundingClientRect();
+  const tx = Math.min(rect.left + rect.width / 2, window.innerWidth - 260);
+  const ty = rect.top - 12;
+  parkingTooltip.style.left = Math.max(10, tx) + 'px';
+  parkingTooltip.style.top  = Math.max(10, ty - parkingTooltip.offsetHeight) + 'px';
+  parkingTooltip.classList.add('visible');
+}
+
+function hideParkingTooltip() {
+  activeParkingZone = null;
+  parkingTooltip.classList.remove('visible');
+}
+
 
 // ─────────────────────────────────────────────
 // ORBIT CONTROLS (manual)
@@ -1239,8 +1410,18 @@ function setView(view) {
   m.label.style.pointerEvents = isDirectory ? 'auto' : 'none';
 });
 
+ // Parking markers — only in parking view
+  parkingMarkers.forEach(m => {
+    m.visible = (view === 'parking');
+    m.sprite.visible = (view === 'parking');
+    m.label.classList.toggle('hidden', view !== 'parking');
+  });
+
+
+
   // Close panel if switching away from directory
   if (view !== 'directory') closePanel();
+ if (view !== 'parking') hideParkingTooltip();
 
   // Animate camera to preset
   const preset = CAM_PRESETS[view];
@@ -1296,6 +1477,26 @@ function animate() {
     label.style.top = y + 'px';
     label.style.opacity = String(0.8 + 0.2 * (1 - depth));
   });
+
+ // Position parking labels
+  if (activeView === 'parking') {
+    parkingMarkers.forEach(({ sprite, label, visible }) => {
+      if (!visible) return;
+      const screenPos = sprite.position.clone().project(camera);
+      if (screenPos.z > 1 || Math.abs(screenPos.x) > 1.4 || Math.abs(screenPos.y) > 1.4) {
+        label.style.opacity = '0';
+        label.style.pointerEvents = 'none';
+        return;
+      }
+      const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+      const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+      const depth = Math.max(0, Math.min(1, (screenPos.z + 0.5) * 0.8));
+      label.style.left = x + 'px';
+      label.style.top  = y + 'px';
+      label.style.opacity = String(0.65 + 0.35 * (1 - depth));
+      label.style.pointerEvents = 'auto';
+    });
+  }
 
   // Hover cursor when over an anchor
   if (!isDragging) {
