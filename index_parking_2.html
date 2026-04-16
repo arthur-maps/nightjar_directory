@@ -1046,9 +1046,10 @@ function loadDemoGeometry() {
 // ─────────────────────────────────────────────
 // STL FILENAMES — change these to match your files
 // ─────────────────────────────────────────────
-const STL_FILE          = 'nightjar_interior.stl';
-const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
-const STL_FILE_PARKING  = 'parking_map.stl';
+const CACHE_BUST        = '?v=1';  // increment this number each time you push new STL files
+const STL_FILE          = 'nightjar_interior.stl' + CACHE_BUST;
+const STL_FILE_EXTERIOR = 'nightjar_exterior.stl'  + CACHE_BUST;
+const STL_FILE_PARKING  = 'parking_map.stl'  + CACHE_BUST; 
 
 // ─────────────────────────────────────────────
 // PARKING MAP STL
