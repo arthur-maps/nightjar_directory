@@ -791,10 +791,10 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 // Fog
-scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+scene.fog = new THREE.FogExp2(0xffffff, 0.015);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-camera.position.set(6, 6, 10);
+camera.position.set(8, 6, 10);
 camera.lookAt(0, 0, 0);
 
 // Default camera state
@@ -845,7 +845,7 @@ const PARKING_ZONES = [
   },
 ];
 
-const DEFAULT_CAM = { x: 6, y: 6, z: 10 };
+const DEFAULT_CAM = { x: 8, y: 6, z: 10 };
 
 // Camera presets per view — tweak radius/phi/theta to taste
 const CAM_PRESETS = {
