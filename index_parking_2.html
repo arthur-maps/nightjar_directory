@@ -373,6 +373,7 @@
   }
 
   /* Parking tooltip popup */
+ /*
   #parking-tooltip {
     position: fixed;
     z-index: 30;
@@ -397,6 +398,7 @@
     color: #7de898;
     margin-bottom: 6px;
   }
+ */
   .pt-rule {
     display: flex;
     justify-content: space-between;
@@ -601,7 +603,7 @@
 <!-- MARKER LABELS rendered by JS -->
 
 <!-- PARKING TOOLTIP -->
-<div id="parking-tooltip"></div>
+<!--<div id="parking-tooltip"></div>-->
 
 <!-- NO-STL NOTICE -->
 <div id="stl-notice" class="visible">
@@ -1156,7 +1158,7 @@ function createMarkers() {
 // PARKING MARKERS
 // ─────────────────────────────────────────────
 const parkingMarkers = [];
-const parkingTooltip = document.getElementById('parking-tooltip');
+//const parkingTooltip = document.getElementById('parking-tooltip');
 let activeParkingZone = null;
 
 function createParkingMarkers() {
@@ -1187,42 +1189,42 @@ function createParkingMarkers() {
       <div class="parking-label-stem"></div>
     `;
 
-    label.querySelector('.parking-label-bubble').addEventListener('click', () => {
-      showParkingTooltip(z, label);
-    });
+    // label.querySelector('.parking-label-bubble').addEventListener('click', () => {
+    //   showParkingTooltip(z, label);
+    // });
     document.body.appendChild(label);
 
     parkingMarkers.push({ sprite, label, zone: z, visible: false });
   });
 }
 
-function showParkingTooltip(zone, anchorLabel) {
-  if (activeParkingZone === zone.id) {
-    hideParkingTooltip();
-    return;
-  }
-  activeParkingZone = zone.id;
-  parkingTooltip.innerHTML = `
-    <div class="pt-zone">${zone.name}</div>
-    ${zone.rules.map(r => `
-      <div class="pt-rule">
-        <span class="pt-rule-day">${r.days}</span>
-        <span class="pt-rule-hours">${r.hours}</span>
-      </div>`).join('')}
-  `;
-  // Position near the label
-  const rect = anchorLabel.getBoundingClientRect();
-  const tx = Math.min(rect.left + rect.width / 2, window.innerWidth - 260);
-  const ty = rect.top - 12;
-  parkingTooltip.style.left = Math.max(10, tx) + 'px';
-  parkingTooltip.style.top  = Math.max(10, ty - parkingTooltip.offsetHeight) + 'px';
-  parkingTooltip.classList.add('visible');
-}
+// function showParkingTooltip(zone, anchorLabel) {
+//   if (activeParkingZone === zone.id) {
+//     hideParkingTooltip();
+//     return;
+//   }
+//   activeParkingZone = zone.id;
+//   parkingTooltip.innerHTML = `
+//     <div class="pt-zone">${zone.name}</div>
+//     ${zone.rules.map(r => `
+//       <div class="pt-rule">
+//         <span class="pt-rule-day">${r.days}</span>
+//         <span class="pt-rule-hours">${r.hours}</span>
+//       </div>`).join('')}
+//   `;
+ 
+//   const rect = anchorLabel.getBoundingClientRect();
+//   const tx = Math.min(rect.left + rect.width / 2, window.innerWidth - 260);
+//   const ty = rect.top - 12;
+//   parkingTooltip.style.left = Math.max(10, tx) + 'px';
+//   parkingTooltip.style.top  = Math.max(10, ty - parkingTooltip.offsetHeight) + 'px';
+//   parkingTooltip.classList.add('visible');
+// }
 
-function hideParkingTooltip() {
-  activeParkingZone = null;
-  parkingTooltip.classList.remove('visible');
-}
+// function hideParkingTooltip() {
+//   activeParkingZone = null;
+//   parkingTooltip.classList.remove('visible');
+// }
 
 // ─────────────────────────────────────────────
 // ORBIT CONTROLS (manual)
@@ -1395,7 +1397,7 @@ function setView(view) {
 
   // Close panels/tooltips when switching
   if (view !== 'directory') closePanel();
-  if (view !== 'parking') hideParkingTooltip();
+  // if (view !== 'parking') hideParkingTooltip();
 
   // Animate camera to preset
   const preset = CAM_PRESETS[view];
