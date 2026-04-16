@@ -866,7 +866,7 @@ scene.add(rimLight);
 // GRID (floor reference)
 // ─────────────────────────────────────────────
 const grid = new THREE.GridHelper(30, 30, 0x222218, 0x1a1a16);
-grid.position.y = -0.01;
+grid.position.y = -0.7;
 scene.add(grid);
 
 // ─────────────────────────────────────────────
@@ -943,6 +943,7 @@ function loadSTLBuffer(buffer) {
   bbox.getSize(size);
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = 8 / maxDim;
+  window._interiorScale = scale;  // save for exterior to reference
   geo.translate(-center.x, -center.y, -center.z);
 
   // Rotate to correct orientation: swap Y/Z so building stands upright
@@ -966,7 +967,7 @@ function loadSTLBuffer(buffer) {
   setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
 }
 
-// ─────────────────────────────────────────────
+ // ─────────────────────────────────────────────
 // EXTERIOR SILHOUETTE
 // ─────────────────────────────────────────────
 let exteriorMesh = null;
@@ -983,8 +984,9 @@ function loadExteriorBuffer(buffer) {
   bbox.getCenter(center);
   const size = new THREE.Vector3();
   bbox.getSize(size);
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const scale = 8 / maxDim;
+  //const maxDim = Math.max(size.x, size.y, size.z);
+  //const scale = 8 / maxDim;
+  const scale = window._interiorScale || 1;  // use interior's scale, not its own
   geo.translate(-center.x, -center.y, -center.z);
 
   // Same orientation correction as interior
@@ -997,10 +999,12 @@ function loadExteriorBuffer(buffer) {
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.8,
   });
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
+  exteriorMesh.position.y=0.95;
+  exteriorMesh.position.z=-0.45;
   exteriorMesh.renderOrder = -1;  // always draw before interior
   exteriorGroup.add(exteriorMesh);
 }
