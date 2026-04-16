@@ -1088,13 +1088,14 @@ function loadParkingBuffer(buffer) {
   geo.computeVertexNormals();
 
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x9fa89e,
+    color: 0x000000,
     roughness: 0.85,
     metalness: 0.05,
     side: THREE.DoubleSide,
   });
   parkingMesh = new THREE.Mesh(geo, mat);
   parkingMesh.scale.setScalar(scale);
+  parkingMesh.position.y=0.95;
   parkingMesh.castShadow = true;
   parkingMesh.receiveShadow = true;
   parkingGroup.add(parkingMesh);
