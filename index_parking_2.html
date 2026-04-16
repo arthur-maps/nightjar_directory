@@ -1494,43 +1494,42 @@ window.addEventListener('resize', () => {
 // ─────────────────────────────────────────────
 setProgress(20, 'Setting up scene…');
 createMarkers();
-//theta = 0.65; phi = 0.5; radius = 14;
+createParkingMarkers();
 theta = CAM_PRESETS.directory.theta; phi = CAM_PRESETS.directory.phi; radius = CAM_PRESETS.directory.radius;
 updateCamera();
 animate();
- 
- // Load interior first, then exterior using its scale
+
 setProgress(40, 'Fetching models…');
- const fetchBuildings = fetch(STL_FILE)
+
+const fetchInterior = fetch(STL_FILE)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(75, 'Parsing interior…');
-    loadSTLBuffer(buf);  // sets window._interiorScale
-    return fetch(STL_FILE_EXTERIOR);
-  })
+    setProgress(80, 'Parsing interior…');
+    loadSTLBuffer(buf);
+  });
+
+const fetchExterior = fetch(STL_FILE_EXTERIOR)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(90, 'Parsing exterior…');
-    loadExteriorBuffer(buf);  // _interiorScale is now guaranteed to exist
+    loadExteriorBuffer(buf);
   });
- const fetchParking = fetch(STL_FILE_PARKING)
+
+const fetchParking = fetch(STL_FILE_PARKING)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE_PARKING + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-   setProgress(95, 'Parsing parking…');
     loadParkingBuffer(buf);
   });
 
-
-Promise.all([fetchBuildings, fetchParking])
+Promise.all([fetchInterior, fetchExterior, fetchParking])
   .catch(err => {
     console.error(err);
     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
@@ -1541,6 +1540,7 @@ Promise.all([fetchBuildings, fetchParking])
       'Run: python server.py — then open http://localhost:8000';
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
   });
+
  
 </script>
 </body>
