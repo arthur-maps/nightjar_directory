@@ -1353,13 +1353,25 @@ function setView(view) {
   exteriorGroup.visible = true;
 
   // Directory markers — only in directory view
+  // markers.forEach(m => {
+  //   m.visible = (view === 'directory');
+  //   m.sprite.visible = (view === 'directory');
+  //   m.label.classList.toggle('hidden', view !== 'directory');
+  //   if (view !== 'directory') m.label.style.pointerEvents = 'none';
+  //   else m.label.style.pointerEvents = 'auto';
+  // });
+
   markers.forEach(m => {
-    m.visible = (view === 'directory');
-    m.sprite.visible = (view === 'directory');
-    m.label.classList.toggle('hidden', view !== 'directory');
-    if (view !== 'directory') m.label.style.pointerEvents = 'none';
-    else m.label.style.pointerEvents = 'auto';
-  });
+  const isDirectory = view === 'directory';
+
+  m.visible = isDirectory;
+  m.sprite.visible = isDirectory;
+
+  // FORCE hide properly
+  m.label.style.display = isDirectory ? 'block' : 'none';
+  m.label.style.opacity = isDirectory ? '1' : '0';
+  m.label.style.pointerEvents = isDirectory ? 'auto' : 'none';
+});
 
   // Parking markers — only in parking view
   parkingMarkers.forEach(m => {
