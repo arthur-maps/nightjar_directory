@@ -1348,9 +1348,8 @@ function setView(view) {
 
   // Show/hide models
   stlGroup.visible     = (view === 'directory');
+  exteriorGroup.visible = (view === 'directory');
   parkingGroup.visible = (view === 'parking');
-  // Exterior silhouette always visible
-  exteriorGroup.visible = true;
 
   // Directory markers — only in directory view
   // markers.forEach(m => {
