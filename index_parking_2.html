@@ -786,10 +786,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0d0e10);
+scene.background = new THREE.Color(0xffffff));
 
 // Fog
-scene.fog = new THREE.FogExp2(0x0d0e10, 0.04);
+scene.fog = new THREE.FogExp2(0xffffff, 0.04);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
 camera.position.set(6, 6, 10);
