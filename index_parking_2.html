@@ -453,7 +453,8 @@
   }
 
   /* ── MINIMAP LEGEND ── */
-  #legend {
+ /*
+ #legend {
     position: fixed;
     bottom: 100px;
     left: 32px;
@@ -485,7 +486,7 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-
+*/
   /* ── CONTROLS ── */
   #controls {
     position: fixed;
@@ -580,13 +581,15 @@
 </div>
 
 <!-- LEGEND -->
-<div id="legend">
+<!--
+ <div id="legend">
   <div class="legend-title">Member Type</div>
   <div class="legend-row"><div class="legend-dot" style="background:#c8a96e;"></div> Studio / Creative</div>
   <div class="legend-row"><div class="legend-dot" style="background:#6ea8c8;"></div> Office / Corporate</div>
   <div class="legend-row"><div class="legend-dot" style="background:#6ec88a;"></div> Common / Shared</div>
   <div class="legend-row"><div class="legend-dot" style="background:#c86e8a;"></div> Gallery / Event</div>
 </div>
+ -->
 
 <!-- ZOOM CONTROLS -->
 <div id="controls">
@@ -789,7 +792,7 @@ scene.background = new THREE.Color(0x0d0e10);
 scene.fog = new THREE.FogExp2(0x0d0e10, 0.04);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-camera.position.set(8, 6, 10);
+camera.position.set(6, 6, 10);
 camera.lookAt(0, 0, 0);
 
 // Default camera state
@@ -840,7 +843,7 @@ const PARKING_ZONES = [
   },
 ];
 
-const DEFAULT_CAM = { x: 8, y: 6, z: 10 };
+const DEFAULT_CAM = { x: 6, y: 6, z: 10 };
 
 // Camera presets per view — tweak radius/phi/theta to taste
 const CAM_PRESETS = {
@@ -1229,7 +1232,7 @@ let prevMouse = { x: 0, y: 0 };
 let theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
 let phi = Math.asin(DEFAULT_CAM.y / Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2));
 let radius = Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2);
-const target = new THREE.Vector3(0, 1.5, 0);
+const target = new THREE.Vector3(0, 0, 0); /*arthur for adjusting cam target */
 
 function updateCamera() {
   phi = Math.max(-0.2, Math.min(Math.PI/2 - 0.05, phi));
