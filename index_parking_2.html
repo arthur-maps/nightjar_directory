@@ -346,13 +346,6 @@
     transition: background 0.15s, border-color 0.15s;
   }
 
- .parking-label-zone.hoy{
-   color: #ffff00;
- }
- .parking-label-bubble.hoy:hover {
-     background: rgba(255, 255, 0, 0.97);
-    border-color: rgba(80, 200, 100, 0.8)
- }
   .parking-label-bubble:hover {
     background: rgba(30, 80, 45, 0.97);
     border-color: rgba(80, 200, 100, 0.8);
@@ -817,6 +810,7 @@ const PARKING_ZONES = [
     id: 'p1',
     name: 'House of Yin',
     hours: 'No parking until 8pm',
+    color: 'yellow',
     position: [-3.0, 0, -3.0],
     // rules: [
     //   { days: 'Mon – Fri', hours: '8:00 am – 6:00 pm' },
@@ -1193,12 +1187,20 @@ function createParkingMarkers() {
     const label = document.createElement('div');
     label.className = 'parking-label hidden';
     label.innerHTML = `
-      <div class="parking-label-bubble">
-        <span class="parking-label-zone">${z.name}</span>
-        <span class="parking-label-hours">${z.hours}</span>
-      </div>
-      <div class="parking-label-stem"></div>
+    <div class="parking-label-bubble" style="${z.color ? `background:rgba(60,55,10,0.93); border-color:rgba(220,200,50,0.45);` : ''}">
+    <span class="parking-label-zone" style="${z.color ? 'color:#e8d44d;' : ''}">${z.name}</span>
+    <span class="parking-label-hours" style="${z.color ? 'color:rgba(230,220,140,0.75);' : ''}">${z.hours}</span>
+    </div>
+    <div class="parking-label-stem" style="${z.color ? 'background:rgba(220,200,50,0.35);' : ''}"></div>
     `;
+   
+    // label.innerHTML = `
+    //   <div class="parking-label-bubble">
+    //     <span class="parking-label-zone">${z.name}</span>
+    //     <span class="parking-label-hours">${z.hours}</span>
+    //   </div>
+    //   <div class="parking-label-stem"></div>
+    // `;
 
 
     // label.querySelector('.parking-label-bubble').addEventListener('click', () => {
