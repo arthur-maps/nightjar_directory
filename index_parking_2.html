@@ -1173,6 +1173,8 @@ let activeParkingZone = null;
 
 function createParkingMarkers() {
   PARKING_ZONES.forEach(z => {
+
+   if z !== 'p1' {
     // Invisible Three.js sprite for 3D position (raycasting)
     const mat = new THREE.SpriteMaterial({
       color: 0x50c864,
@@ -1198,16 +1200,42 @@ function createParkingMarkers() {
       </div>
       <div class="parking-label-stem"></div>
     `;
+   }
 
      //PARKING_ZONES.forEach(z => {
       if (z==='p1') {
-      label.classList.add("hoy");
+    // Invisible Three.js sprite for 3D position (raycasting)
+    const mat = new THREE.SpriteMaterial({
+      color: 0x50c864,
+      sizeAttenuation: true,
+      depthTest: false,
+      transparent: true,
+      opacity: 0,  // invisible — HTML label is the visual
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(...z.position);
+    sprite.scale.set(0.6, 0.6, 1);
+    sprite.userData = { zoneId: z.id };
+    sprite.visible = false;  // starts hidden, shown in parking view
+    scene.add(sprite);
+
+    // HTML label
+    const label = document.createElement('div');
+    label.className = 'parking-label hidden';
+    label.innerHTML = `
+      <div class="parking-label-bubble hoy">
+        <span class="parking-label-zone hoy">${z.name}</span>
+        <span class="parking-label-hours hoy">${z.hours}</span>
+      </div>
+      <div class="parking-label-stem hoy"></div>
+    `;
      }
 
 
     // label.querySelector('.parking-label-bubble').addEventListener('click', () => {
     //   showParkingTooltip(z, label);
     // });
+   
     document.body.appendChild(label);
 
     parkingMarkers.push({ sprite, label, zone: z, visible: false });
