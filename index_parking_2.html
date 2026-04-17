@@ -346,10 +346,10 @@
     transition: background 0.15s, border-color 0.15s;
   }
 
- #p1 {
+ .parking-label-zone.hoy{
    color: #ffff00;
  }
- #p1:hover {
+ .parking-label-bubble.hoy:hover {
      background: rgba(255, 255, 0, 0.97);
     border-color: rgba(80, 200, 100, 0.8)
  }
@@ -815,6 +815,7 @@ camera.lookAt(0, 0, 0);
 const PARKING_ZONES = [
   {
     id: 'p1',
+    classList.add: 'hoy',
     name: 'House of Yin',
     hours: 'No parking until 8pm',
     position: [-3.0, 0, -3.0],
