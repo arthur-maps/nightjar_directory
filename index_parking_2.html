@@ -853,12 +853,6 @@ const PARKING_ZONES = [
   },
 ];
 
- // 1. Select the element by its ID
-const hoyel = document.getElementById("p1");
-
-// 2. Add the new class
-hoyel.classList.add("hoy");
-
 const DEFAULT_CAM = { x: 8, y: 6, z: 10 };
 
 // Camera presets per view — tweak radius/phi/theta to taste
@@ -1204,6 +1198,12 @@ function createParkingMarkers() {
       </div>
       <div class="parking-label-stem"></div>
     `;
+
+     if (zone.id === 'p1') {
+      label.classList.add("hoy");
+      return;
+     }
+
 
     // label.querySelector('.parking-label-bubble').addEventListener('click', () => {
     //   showParkingTooltip(z, label);
