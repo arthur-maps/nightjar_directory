@@ -345,6 +345,14 @@
     pointer-events: auto;
     transition: background 0.15s, border-color 0.15s;
   }
+
+ #p1 {
+   color: #ffff00;
+ }
+ #p1:hover {
+     background: rgba(255, 255, 0, 0.97);
+    border-color: rgba(80, 200, 100, 0.8)
+ }
   .parking-label-bubble:hover {
     background: rgba(30, 80, 45, 0.97);
     border-color: rgba(80, 200, 100, 0.8);
@@ -806,7 +814,7 @@ camera.lookAt(0, 0, 0);
 // ─────────────────────────────────────────────
 const PARKING_ZONES = [
   {
-    id: 'p1',
+    id: '',
     name: 'House of Yin',
     hours: 'No parking until 8pm',
     position: [-3.0, 0, -3.0],
@@ -1089,7 +1097,7 @@ function loadParkingBuffer(buffer) {
 
   const mat = new THREE.MeshStandardMaterial({
     //color: 0x756BB1,
-    color: 0x000000,
+    color: 0x4A4A4A,
     roughness: 0.85,
     metalness: 0.05,
     side: THREE.DoubleSide,
