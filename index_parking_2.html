@@ -815,7 +815,6 @@ camera.lookAt(0, 0, 0);
 const PARKING_ZONES = [
   {
     id: 'p1',
-    classList.add: 'hoy',
     name: 'House of Yin',
     hours: 'No parking until 8pm',
     position: [-3.0, 0, -3.0],
@@ -853,6 +852,12 @@ const PARKING_ZONES = [
     ]
   },
 ];
+
+ // 1. Select the element by its ID
+const hoyel = document.getElementById("p1");
+
+// 2. Add the new class
+hoyel.classList.add("hoy");
 
 const DEFAULT_CAM = { x: 8, y: 6, z: 10 };
 
