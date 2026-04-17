@@ -1174,7 +1174,7 @@ let activeParkingZone = null;
 function createParkingMarkers() {
   PARKING_ZONES.forEach(z => {
 
-   if z !== 'p1' {
+   if (z !== 'p1') {
     // Invisible Three.js sprite for 3D position (raycasting)
     const mat = new THREE.SpriteMaterial({
       color: 0x50c864,
