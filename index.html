@@ -9,9 +9,8 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-
   :root {
-    --bg: #ffffff;
+    --bg: #0d0e10;
     --surface: #16181c;
     --surface2: #1e2026;
     --border: rgba(255,255,255,0.08);
@@ -286,7 +285,7 @@
   }
   .marker-label.hidden { opacity: 0; }
   .marker-label-bubble {
-    /*background: rgba(16,17,20,0.92);*/
+    background: rgba(16,17,20,0.92);
     border: 1px solid var(--border-strong);
     border-radius: 7px;
     padding: 7px 12px 6px;
@@ -295,16 +294,13 @@
     white-space: nowrap;
   }
   .marker-label.hovered .marker-label-bubble {
-    /*border-color: rgba(255,255,255,0.8);*/
-    border-color: rgba(0,0,0,1.0);
-    background: rgba(255,255,255,0.97);
-    /*background: rgba(26,27,32,0.97);*/
+    border-color: rgba(255,255,255,0.32);
+    background: rgba(26,27,32,0.97);
   }
   .marker-label-name {
     font-family: var(--serif);
     font-size: 13px;
-    /*color: var(--text);*/
-    color: rgba(0,0,0,1.0);
+    color: var(--text);
     display: block;
     line-height: 1.2;
   }
@@ -323,6 +319,104 @@
   .marker-label.hovered .marker-label-stem {
     background: rgba(255,255,255,0.32);
   }
+
+  /* ── PARKING ZONE LABELS ── */
+  .parking-label {
+    position: fixed;
+    z-index: 15;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 14px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transition: opacity 0.2s;
+  }
+  .parking-label.hidden { opacity: 0 !important; pointer-events: none !important; }
+  .parking-label-bubble {
+    background: rgba(30, 60, 40, 0.93);
+    border: 1px solid rgba(80, 200, 100, 0.45);
+    border-radius: 6px;
+    padding: 6px 11px 5px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .parking-label-bubble:hover {
+    background: rgba(30, 80, 45, 0.97);
+    border-color: rgba(80, 200, 100, 0.8);
+  }
+  .parking-label-zone {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #7de898;
+    display: block;
+    line-height: 1.2;
+  }
+  .parking-label-hours {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    color: rgba(180, 230, 190, 0.75);
+    display: block;
+    margin-top: 2px;
+  }
+  .parking-label-stem {
+    width: 1px;
+    height: 12px;
+    background: rgba(80, 200, 100, 0.35);
+  }
+
+  /* Parking tooltip popup */
+ /*
+  #parking-tooltip {
+    position: fixed;
+    z-index: 30;
+    background: rgba(20, 45, 28, 0.97);
+    border: 1px solid rgba(80, 200, 100, 0.5);
+    border-radius: 10px;
+    padding: 14px 18px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s;
+    backdrop-filter: blur(12px);
+    max-width: 240px;
+    min-width: 180px;
+  }
+  #parking-tooltip.visible { opacity: 1; }
+  .pt-zone {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7de898;
+    margin-bottom: 6px;
+  }
+ */
+  .pt-rule {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(80,200,100,0.12);
+    font-size: 11px;
+  }
+  .pt-rule:last-child { border-bottom: none; }
+  .pt-rule-day {
+    color: rgba(180,230,190,0.6);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .pt-rule-hours { color: #e8e4dc; }
 
   /* ── LOADING ── */
   #loader {
@@ -363,7 +457,7 @@
 
   /* ── MINIMAP LEGEND ── */
  /*
-  #legend {
+ #legend {
     position: fixed;
     bottom: 100px;
     left: 32px;
@@ -395,8 +489,7 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
- */
-
+*/
   /* ── CONTROLS ── */
   #controls {
     position: fixed;
@@ -486,22 +579,20 @@
 
 <!-- FLOOR NAV -->
 <div id="floor-nav">
-  <button class="floor-btn active" data-floor="all">All Floors</button>
-  <button class="floor-btn" data-floor="0">Ground</button>
-  <button class="floor-btn" data-floor="1">Level 1</button>
-  <button class="floor-btn" data-floor="2">Level 2</button>
+  <button class="floor-btn active" data-view="directory">Directory</button>
+  <button class="floor-btn" data-view="parking">Parking Map</button>
 </div>
 
 <!-- LEGEND -->
- <!--
-<div id="legend">
+<!--
+ <div id="legend">
   <div class="legend-title">Member Type</div>
   <div class="legend-row"><div class="legend-dot" style="background:#c8a96e;"></div> Studio / Creative</div>
   <div class="legend-row"><div class="legend-dot" style="background:#6ea8c8;"></div> Office / Corporate</div>
   <div class="legend-row"><div class="legend-dot" style="background:#6ec88a;"></div> Common / Shared</div>
   <div class="legend-row"><div class="legend-dot" style="background:#c86e8a;"></div> Gallery / Event</div>
 </div>
--->
+ -->
 
 <!-- ZOOM CONTROLS -->
 <div id="controls">
@@ -511,6 +602,9 @@
 </div>
 
 <!-- MARKER LABELS rendered by JS -->
+
+<!-- PARKING TOOLTIP -->
+<!--<div id="parking-tooltip"></div>-->
 
 <!-- NO-STL NOTICE -->
 <div id="stl-notice" class="visible">
@@ -680,6 +774,7 @@ const MEMBERS = [
   }
 ];
 
+
 // ─────────────────────────────────────────────
 // THREE.JS SETUP
 // ─────────────────────────────────────────────
@@ -697,14 +792,69 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 // Fog
-scene.fog = new THREE.FogExp2(0xffffff, 0.04);
+scene.fog = new THREE.FogExp2(0xffffff, 0.015);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-camera.position.set(6, 6, 10);
+camera.position.set(8, 6, 10);
 camera.lookAt(0, 0, 0);
 
 // Default camera state
-const DEFAULT_CAM = { x: 6, y: 6, z: 10 };
+// ─────────────────────────────────────────────
+// PARKING ZONE DATA
+// Each zone needs: id, name, position [x,y,z],
+// hours (short summary for the label),
+// and rules (array of {days, hours} for the tooltip).
+// ─────────────────────────────────────────────
+const PARKING_ZONES = [
+  {
+    id: 'p1',
+    name: 'House of Yin',
+    hours: 'No parking until 8pm',
+    color: 'yellow',
+    position: [-3.0, 0, -3.0],
+    // rules: [
+    //   { days: 'Mon – Fri', hours: '8:00 am – 6:00 pm' },
+    //   { days: 'Sat – Sun', hours: 'Unrestricted' },
+    // ]
+  },
+  {
+    id: 'p2',
+    name: 'Theatre of Memory',
+    hours: 'Parking okay! Close gate when you leave.',
+    color: 'yellow',
+    position: [2.5, 0, 3.5],
+    // rules: [
+    //   { days: 'Mon – Sun', hours: '2-hour limit, 7am – 9pm' },
+    // ]
+  },
+  {
+    id: 'p3',
+    name: 'Bike Parking',
+    hours: 'Park your bike anytime.',
+    position: [1.4, 0, 0],
+    rules: [
+      { days: 'Mon – Fri', hours: '7:00 am – 7:00 pm' },
+      { days: 'Sat – Sun', hours: 'No stopping' },
+    ]
+  },
+  {
+    id: 'p4',
+    name: 'Nightjar Lot',
+    hours: 'Anytime!',
+    position: [0, 0, -2.4],
+    rules: [
+      { days: 'All times', hours: 'Valid permit required' },
+    ]
+  },
+];
+
+const DEFAULT_CAM = { x: 8, y: 6, z: 10 };
+
+// Camera presets per view — tweak radius/phi/theta to taste
+const CAM_PRESETS = {
+  directory: { theta: 0.65, phi: 0.5,  radius: 14 },
+  parking:   { theta: 0.65, phi: 0.75, radius: 28 },
+};
 
 // ─────────────────────────────────────────────
 // LIGHTING
@@ -859,11 +1009,11 @@ function loadExteriorBuffer(buffer) {
 
   // Flat black, always behind — depthWrite off so it never occludes interior
   const mat = new THREE.MeshBasicMaterial({
-    color: 0x808080,
+    color: 0x000000,
     side: THREE.BackSide,   // render inside-out so it shows as an outer shell
     depthWrite: false,
     transparent: true,
-    opacity: 1,
+    opacity: 0.8,
   });
   exteriorMesh = new THREE.Mesh(geo, mat);
   exteriorMesh.scale.setScalar(scale);
@@ -910,52 +1060,50 @@ function loadDemoGeometry() {
 // ─────────────────────────────────────────────
 // STL FILENAMES — change these to match your files
 // ─────────────────────────────────────────────
-
 const CACHE_BUST        = '?v=1';  // increment this number each time you push new STL files
 const STL_FILE          = 'nightjar_interior.stl' + CACHE_BUST;
 const STL_FILE_EXTERIOR = 'nightjar_exterior.stl'  + CACHE_BUST;
-// const STL_FILE          = 'nightjar_interior.stl';
-// const STL_FILE_EXTERIOR = 'nightjar_exterior.stl';
+const STL_FILE_PARKING  = 'parking_map.stl'  + CACHE_BUST; 
 
- // END ADD EXTERIOR
-function loadDemoGeometry() {
-  // Build a simple multi-floor building placeholder
-  const g = new THREE.Group();
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x9fa89e, roughness: 0.9, metalness: 0.03 });
-  const floorMat = new THREE.MeshStandardMaterial({ color: 0x6e7068, roughness: 0.95 });
+// ─────────────────────────────────────────────
+// PARKING MAP STL
+// ─────────────────────────────────────────────
+let parkingMesh = null;
+let parkingGroup = new THREE.Group();
+parkingGroup.visible = false;   // hidden until parking view is selected
+scene.add(parkingGroup);
 
-  function addBox(x,y,z,w,h,d,mat) {
-    const geo = new THREE.BoxGeometry(w,h,d);
-    const m = new THREE.Mesh(geo, mat || wallMat);
-    m.position.set(x,y,z);
-    m.castShadow = true; m.receiveShadow = true;
-    g.add(m);
-  }
+function loadParkingBuffer(buffer) {
+  if (parkingMesh) { parkingGroup.remove(parkingMesh); parkingMesh = null; }
+  const geo = parseSTL(buffer);
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
+  const bbox = geo.boundingBox;
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  // Use same scale reference as interior so parking map is proportional
+  const scale = window._interiorScale || (8 / Math.max(size.x, size.y, size.z));
+  geo.translate(-center.x, -center.y, -center.z);
+  geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  geo.computeBoundingBox();
+  geo.computeVertexNormals();
 
-  // Floors
-  for (let f = 0; f < 3; f++) {
-    addBox(0, f*2.0, 0, 8, 0.12, 6, floorMat);
-  }
-  // Outer walls
-  addBox(-4, 1.0, 0, 0.12, 3, 6);
-  addBox( 4, 1.0, 0, 0.12, 3, 6);
-  addBox(0, 1.0, -3, 8, 3, 0.12);
-  // Interior walls floor 0
-  addBox(-1, 0.6, 0, 0.1, 1.8, 4);
-  addBox(2, 0.6, 1, 0.1, 1.8, 3);
-  // Interior walls floor 1
-  addBox(-2, 2.6, -0.5, 0.1, 1.8, 4);
-  // Interior walls floor 2
-  addBox(1, 4.6, 0.5, 0.1, 1.8, 4);
-
-  stlGroup.add(g);
+  const mat = new THREE.MeshStandardMaterial({
+    //color: 0x756BB1,
+    color: 0x4A4A4A,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.DoubleSide,
+  });
+  parkingMesh = new THREE.Mesh(geo, mat);
+  parkingMesh.scale.setScalar(scale);
+  parkingMesh.position.y=0.5;
+  parkingMesh.castShadow = true;
+  parkingMesh.receiveShadow = true;
+  parkingGroup.add(parkingMesh);
 }
-
-
-// ─────────────────────────────────────────────
-// STL FILENAME — change this to match your file
-// ─────────────────────────────────────────────
-//const STL_FILE = 'nightjar_interior.stl';
 
 // ─────────────────────────────────────────────
 // ROOM MARKERS
@@ -981,9 +1129,8 @@ function createMarkers() {
   MEMBERS.forEach(m => {
     const tex = getTexture(m.icon);
     const mat = tex
-      ? new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false})
-      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), transparent: true, depthTest: false, depthWrite: false});
-    //  : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
+      ? new THREE.SpriteMaterial({ map: tex, sizeAttenuation: true, depthTest: false })
+      : new THREE.SpriteMaterial({ color: new THREE.Color(m.color), sizeAttenuation: true, depthTest: false });
 
     const sprite = new THREE.Sprite(mat);
     sprite.position.set(...m.position);
@@ -1013,6 +1160,89 @@ function createMarkers() {
 }
 
 // ─────────────────────────────────────────────
+// PARKING MARKERS
+// ─────────────────────────────────────────────
+const parkingMarkers = [];
+//const parkingTooltip = document.getElementById('parking-tooltip');
+let activeParkingZone = null;
+
+function createParkingMarkers() {
+  PARKING_ZONES.forEach(z => {
+
+    // Invisible Three.js sprite for 3D position (raycasting)
+    const mat = new THREE.SpriteMaterial({
+      color: 0x50c864,
+      sizeAttenuation: true,
+      depthTest: false,
+      transparent: true,
+      opacity: 0,  // invisible — HTML label is the visual
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(...z.position);
+    sprite.scale.set(0.6, 0.6, 1);
+    sprite.userData = { zoneId: z.id };
+    sprite.visible = false;  // starts hidden, shown in parking view
+    scene.add(sprite);
+
+    // HTML label
+    const label = document.createElement('div');
+    label.className = 'parking-label hidden';
+    label.innerHTML = `
+    <div class="parking-label-bubble" style="${z.color ? `background:rgba(60,55,10,0.93); border-color:rgba(220,200,50,0.45);` : ''}">
+    <span class="parking-label-zone" style="${z.color ? 'color:#e8d44d;' : ''}">${z.name}</span>
+    <span class="parking-label-hours" style="${z.color ? 'color:rgba(230,220,140,0.75);' : ''}">${z.hours}</span>
+    </div>
+    <div class="parking-label-stem" style="${z.color ? 'background:rgba(220,200,50,0.35);' : ''}"></div>
+    `;
+   
+    // label.innerHTML = `
+    //   <div class="parking-label-bubble">
+    //     <span class="parking-label-zone">${z.name}</span>
+    //     <span class="parking-label-hours">${z.hours}</span>
+    //   </div>
+    //   <div class="parking-label-stem"></div>
+    // `;
+
+
+    // label.querySelector('.parking-label-bubble').addEventListener('click', () => {
+    //   showParkingTooltip(z, label);
+    // });
+   
+    document.body.appendChild(label);
+
+    parkingMarkers.push({ sprite, label, zone: z, visible: false });
+  });
+}
+
+// function showParkingTooltip(zone, anchorLabel) {
+//   if (activeParkingZone === zone.id) {
+//     hideParkingTooltip();
+//     return;
+//   }
+//   activeParkingZone = zone.id;
+//   parkingTooltip.innerHTML = `
+//     <div class="pt-zone">${zone.name}</div>
+//     ${zone.rules.map(r => `
+//       <div class="pt-rule">
+//         <span class="pt-rule-day">${r.days}</span>
+//         <span class="pt-rule-hours">${r.hours}</span>
+//       </div>`).join('')}
+//   `;
+ 
+//   const rect = anchorLabel.getBoundingClientRect();
+//   const tx = Math.min(rect.left + rect.width / 2, window.innerWidth - 260);
+//   const ty = rect.top - 12;
+//   parkingTooltip.style.left = Math.max(10, tx) + 'px';
+//   parkingTooltip.style.top  = Math.max(10, ty - parkingTooltip.offsetHeight) + 'px';
+//   parkingTooltip.classList.add('visible');
+// }
+
+// function hideParkingTooltip() {
+//   activeParkingZone = null;
+//   parkingTooltip.classList.remove('visible');
+// }
+
+// ─────────────────────────────────────────────
 // ORBIT CONTROLS (manual)
 // ─────────────────────────────────────────────
 let isDragging = false;
@@ -1020,7 +1250,7 @@ let prevMouse = { x: 0, y: 0 };
 let theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
 let phi = Math.asin(DEFAULT_CAM.y / Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2));
 let radius = Math.sqrt(DEFAULT_CAM.x**2+DEFAULT_CAM.y**2+DEFAULT_CAM.z**2);
-const target = new THREE.Vector3(0, 0, 0);
+const target = new THREE.Vector3(0, 0, 0); /*arthur for adjusting cam target */
 
 function updateCamera() {
   phi = Math.max(-0.2, Math.min(Math.PI/2 - 0.05, phi));
@@ -1075,9 +1305,10 @@ canvas.addEventListener('touchend', () => { lastTouch = null; });
 document.getElementById('zoom-in').addEventListener('click', () => { radius -= 1.5; });
 document.getElementById('zoom-out').addEventListener('click', () => { radius += 1.5; });
 document.getElementById('reset-cam').addEventListener('click', () => {
-  theta = Math.atan2(DEFAULT_CAM.x, DEFAULT_CAM.z);
-  phi = 0.55;
-  radius = 14;
+  const preset = CAM_PRESETS[activeView] || CAM_PRESETS.directory;
+  theta  = preset.theta;
+  phi    = preset.phi;
+  radius = preset.radius;
   closePanel();
 });
 
@@ -1140,23 +1371,64 @@ function closePanel() {
 document.getElementById('close-panel').addEventListener('click', closePanel);
 
 // ─────────────────────────────────────────────
-// FLOOR FILTER
+// VIEW SWITCHER
 // ─────────────────────────────────────────────
-let activeFloor = 'all';
+let activeView = 'directory';
+
+function setView(view) {
+  activeView = view;
+
+  // Show/hide models
+  stlGroup.visible     = (view === 'directory');
+  exteriorGroup.visible = (view === 'directory');
+  parkingGroup.visible = (view === 'parking');
+
+  // Directory markers — only in directory view
+  // markers.forEach(m => {
+  //   m.visible = (view === 'directory');
+  //   m.sprite.visible = (view === 'directory');
+  //   m.label.classList.toggle('hidden', view !== 'directory');
+  //   if (view !== 'directory') m.label.style.pointerEvents = 'none';
+  //   else m.label.style.pointerEvents = 'auto';
+  // });
+
+  markers.forEach(m => {
+  const isDirectory = view === 'directory';
+
+  m.visible = isDirectory;
+  m.sprite.visible = isDirectory;
+
+  // FORCE hide properly
+  m.label.style.display = isDirectory ? 'block' : 'none';
+  m.label.style.opacity = isDirectory ? '1' : '0';
+  m.label.style.pointerEvents = isDirectory ? 'auto' : 'none';
+});
+
+  // Parking markers — only in parking view
+  parkingMarkers.forEach(m => {
+    m.visible = (view === 'parking');
+    m.sprite.visible = (view === 'parking');
+    m.label.classList.toggle('hidden', view !== 'parking');
+  });
+
+  // Close panels/tooltips when switching
+  if (view !== 'directory') closePanel();
+  // if (view !== 'parking') hideParkingTooltip();
+
+  // Animate camera to preset
+  const preset = CAM_PRESETS[view];
+  if (preset) {
+    theta  = preset.theta;
+    phi    = preset.phi;
+    radius = preset.radius;
+  }
+}
+
 document.querySelectorAll('.floor-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeFloor = btn.dataset.floor;
-    markers.forEach(m => {
-      const visible = activeFloor === 'all' || m.member.floor === parseInt(activeFloor);
-      m.visible = visible;
-      m.sprite.visible = visible;
-      m.label.classList.toggle('hidden', !visible);
-    });
-    if (stlGroup.children.length) {
-      stlGroup.children.forEach(child => { child.visible = true; });
-    }
+    setView(btn.dataset.view);
   });
 });
 
@@ -1181,7 +1453,7 @@ function animate() {
 
   updateCamera();
 
-  // Position labels above each sprite
+    // Position labels above each sprite
   markers.forEach(({ sprite, label, visible }) => {
     if (!visible) return;
     const screenPos = sprite.position.clone().project(camera);
@@ -1196,6 +1468,26 @@ function animate() {
     label.style.top = y + 'px';
     label.style.opacity = String(0.8 + 0.2 * (1 - depth));
   });
+
+ // Position parking labels
+  if (activeView === 'parking') {
+    parkingMarkers.forEach(({ sprite, label, visible }) => {
+      if (!visible) return;
+      const screenPos = sprite.position.clone().project(camera);
+      if (screenPos.z > 1 || Math.abs(screenPos.x) > 1.4 || Math.abs(screenPos.y) > 1.4) {
+        label.style.opacity = '0';
+        label.style.pointerEvents = 'none';
+        return;
+      }
+      const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+      const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+      const depth = Math.max(0, Math.min(1, (screenPos.z + 0.5) * 0.8));
+      label.style.left = x + 'px';
+      label.style.top  = y + 'px';
+      label.style.opacity = String(0.85 + 0.15 * (1 - depth));
+      label.style.pointerEvents = 'auto';
+    });
+  }
 
   // Hover cursor when over an anchor
   if (!isDragging) {
@@ -1223,20 +1515,25 @@ window.addEventListener('resize', () => {
 // ─────────────────────────────────────────────
 setProgress(20, 'Setting up scene…');
 createMarkers();
-theta = 0.65; phi = 0.5; radius = 14;
+createParkingMarkers();
+theta = CAM_PRESETS.directory.theta; phi = CAM_PRESETS.directory.phi; radius = CAM_PRESETS.directory.radius;
 updateCamera();
 animate();
- 
- // Load interior first, then exterior using its scale
-setProgress(40, 'Fetching models…');
-fetch(STL_FILE)
+
+setProgress(40, 'Fetching interior…');
+
+// Interior → Exterior are chained sequentially so _interiorScale is always set
+// before loadExteriorBuffer runs. Parking is independent so runs in parallel.
+const fetchCritical = fetch(STL_FILE)
   .then(r => {
     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(75, 'Parsing interior…');
-    loadSTLBuffer(buf);  // sets window._interiorScale
+    setProgress(60, 'Parsing interior…');
+    loadSTLBuffer(buf);
+    // _interiorScale is now set — safe to fetch exterior
+    setProgress(75, 'Fetching exterior…');
     return fetch(STL_FILE_EXTERIOR);
   })
   .then(r => {
@@ -1244,8 +1541,25 @@ fetch(STL_FILE)
     return r.arrayBuffer();
   })
   .then(buf => {
-    setProgress(95, 'Parsing exterior…');
-    loadExteriorBuffer(buf);  // _interiorScale is now guaranteed to exist
+    setProgress(90, 'Parsing exterior…');
+    loadExteriorBuffer(buf);
+  });
+
+// Parking can load independently — doesn't depend on interior scale
+const fetchParking = fetch(STL_FILE_PARKING)
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load ' + STL_FILE_PARKING + ' (HTTP ' + r.status + ')');
+    return r.arrayBuffer();
+  })
+  .then(buf => {
+    loadParkingBuffer(buf);
+  });
+
+// Only hide the loader once BOTH chains are complete
+Promise.all([fetchCritical, fetchParking])
+  .then(() => {
+    setProgress(100, 'Ready');
+    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 400);
   })
   .catch(err => {
     console.error(err);
@@ -1257,57 +1571,8 @@ fetch(STL_FILE)
       'Run: python server.py — then open http://localhost:8000';
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
   });
-// const fetchInterior = fetch(STL_FILE)
-//   .then(r => {
-//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
-//     return r.arrayBuffer();
-//   })
-//   .then(buf => {
-//     setProgress(80, 'Parsing interior…');
-//     loadSTLBuffer(buf);
-//   });
 
-// const fetchExterior = fetch(STL_FILE_EXTERIOR)
-//   .then(r => {
-//     if (!r.ok) throw new Error('Could not load ' + STL_FILE_EXTERIOR + ' (HTTP ' + r.status + ')');
-//     return r.arrayBuffer();
-//   })
-//   .then(buf => {
-//     loadExteriorBuffer(buf);
-//   });
-
-// Promise.all([fetchInterior, fetchExterior])
-//   .catch(err => {
-//     console.error(err);
-//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
-//     document.getElementById('loader-status').style.color = '#e06c75';
-//     document.getElementById('stl-notice').classList.add('visible');
-//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
-//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
-//       'Run: python server.py — then open http://localhost:8000';
-//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
-//   });
  
-// setProgress(40, 'Fetching model…');
-// fetch(STL_FILE)
-//   .then(r => {
-//     if (!r.ok) throw new Error('Could not load ' + STL_FILE + ' (HTTP ' + r.status + ')');
-//     return r.arrayBuffer();
-//   })
-//   .then(buf => {
-//     setProgress(85, 'Parsing geometry…');
-//     loadSTLBuffer(buf);
-//   })
-//   .catch(err => {
-//     console.error(err);
-//     document.getElementById('loader-status').textContent = 'Error: ' + err.message;
-//     document.getElementById('loader-status').style.color = '#e06c75';
-//     document.getElementById('stl-notice').classList.add('visible');
-//     document.getElementById('stl-notice').querySelector('.stl-notice-text').textContent = 'Could not load model';
-//     document.getElementById('stl-notice').querySelector('.stl-notice-sub').textContent =
-//       'Run: python server.py — then open http://localhost:8000';
-//     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1800);
-//   });
 </script>
 </body>
 </html>
