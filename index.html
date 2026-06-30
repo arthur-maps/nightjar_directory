@@ -3,24 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Collective — Building Directory</title>
+<title>Nightjar Gallery and Studios — Building Directory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0d0e10;
-    --surface: #16181c;
-    --surface2: #1e2026;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.16);
-    --accent: #c8a96e;
-    --accent-dim: rgba(200,169,110,0.15);
-    --accent-glow: rgba(200,169,110,0.4);
-    --text: #e8e4dc;
-    --text-muted: #7a7872;
-    --text-faint: #3a3830;
+    --bg: #EFF4EE;
+    --surface: #F8FAF7;
+    --surface2: #E8EFE5;
+    --border: rgba(40,50,42,0.10);
+    --border-strong: rgba(40,50,42,0.18);
+    --accent: #6B4FA0;
+    --accent-dim: rgba(107,79,160,0.12);
+    --accent-glow: rgba(107,79,160,0.35);
+    --on-accent: #FBF9FC;
+    --sage: #6F8C68;
+    --sage-dim: rgba(111,140,104,0.14);
+    --text: #283228;
+    --text-muted: #6f7d71;
+    --text-faint: #b9c4ba;
     --serif: 'DM Serif Display', Georgia, serif;
     --mono: 'DM Mono', 'Courier New', monospace;
     --panel-w: 360px;
@@ -53,7 +56,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 32px;
-    background: linear-gradient(to bottom, rgba(13,14,16,0.95) 0%, transparent 100%);
+    background: linear-gradient(to bottom, rgba(239,244,238,0.95) 0%, transparent 100%);
     pointer-events: none;
   }
   .wordmark {
@@ -92,7 +95,7 @@
     z-index: 10;
     display: flex;
     gap: 6px;
-    background: rgba(22,24,28,0.85);
+    background: rgba(255,255,255,0.85);
     border: 1px solid var(--border-strong);
     border-radius: 40px;
     padding: 6px;
@@ -111,8 +114,8 @@
     border-radius: 30px;
     transition: all 0.2s;
   }
-  .floor-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-  .floor-btn.active { background: var(--accent); color: #1a1400; }
+  .floor-btn:hover { color: var(--text); background: rgba(40,50,42,0.05); }
+  .floor-btn.active { background: var(--accent); color: var(--on-accent); }
 
   /* ── MEMBER PANEL ── */
   #panel {
@@ -271,6 +274,170 @@
     border-radius: 20px;
   }
 
+  /* ── PAGE MODALS (About / Who We Are) ── */
+  .page-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(231,239,228,0.92);
+    backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+  }
+  .page-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .page-modal-inner {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    margin: auto;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 18px;
+    padding: 56px 52px;
+    transform: translateY(18px) scale(0.98);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 30px 80px rgba(40,50,42,0.16);
+  }
+  .page-modal.open .page-modal-inner {
+    transform: translateY(0) scale(1);
+  }
+  .page-modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .page-modal-close:hover { color: var(--text); background: var(--surface2); }
+
+  .about-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .about-title {
+    font-family: var(--serif);
+    font-size: 38px;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+  .about-lede {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text);
+    opacity: 0.85;
+    max-width: 540px;
+    margin-bottom: 36px;
+  }
+  .about-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    margin-bottom: 40px;
+  }
+  .about-block-label {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .about-block p {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+    opacity: 0.85;
+  }
+  .about-cta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    cursor: pointer;
+    padding: 12px 22px;
+    border-radius: 30px;
+    transition: all 0.2s;
+  }
+  .about-cta:hover { filter: brightness(1.08); }
+
+  /* ── TEAM GRID ── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 28px;
+  }
+  .team-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .team-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .team-avatar img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+  }
+  .team-name {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .team-role {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .page-modal-inner { padding: 40px 24px; }
+    .about-title { font-size: 28px; }
+  }
+
   /* ── PERSISTENT MARKER LABELS ── */
   .marker-label {
     position: fixed;
@@ -285,7 +452,7 @@
   }
   .marker-label.hidden { opacity: 0; }
   .marker-label-bubble {
-    background: rgba(16,17,20,0.92);
+    background: rgba(255,255,255,0.92);
     border: 1px solid var(--border-strong);
     border-radius: 7px;
     padding: 7px 12px 6px;
@@ -294,8 +461,8 @@
     white-space: nowrap;
   }
   .marker-label.hovered .marker-label-bubble {
-    border-color: rgba(255,255,255,0.32);
-    background: rgba(26,27,32,0.97);
+    border-color: rgba(40,50,42,0.30);
+    background: rgba(255,255,255,0.98);
   }
   .marker-label-name {
     font-family: var(--serif);
@@ -317,7 +484,7 @@
     background: var(--border-strong);
   }
   .marker-label.hovered .marker-label-stem {
-    background: rgba(255,255,255,0.32);
+    background: rgba(40,50,42,0.30);
   }
 
   /* ── PARKING ZONE LABELS ── */
@@ -334,8 +501,8 @@
   }
   .parking-label.hidden { opacity: 0 !important; pointer-events: none !important; }
   .parking-label-bubble {
-    background: rgba(30, 60, 40, 0.93);
-    border: 1px solid rgba(80, 200, 100, 0.45);
+    background: rgba(232,240,228,0.95);
+    border: 1px solid rgba(111,140,104,0.5);
     border-radius: 6px;
     padding: 6px 11px 5px;
     backdrop-filter: blur(10px);
@@ -347,8 +514,8 @@
   }
 
   .parking-label-bubble:hover {
-    background: rgba(30, 80, 45, 0.97);
-    border-color: rgba(80, 200, 100, 0.8);
+    background: rgba(221,232,216,0.98);
+    border-color: rgba(111,140,104,0.85);
   }
   .parking-label-zone {
     font-family: var(--mono);
@@ -356,21 +523,21 @@
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #7de898;
+    color: #4F6B47;
     display: block;
     line-height: 1.2;
   }
   .parking-label-hours {
     font-size: 8px;
     letter-spacing: 0.08em;
-    color: rgba(180, 230, 190, 0.75);
+    color: rgba(79,107,71,0.75);
     display: block;
     margin-top: 2px;
   }
   .parking-label-stem {
     width: 1px;
     height: 12px;
-    background: rgba(80, 200, 100, 0.35);
+    background: rgba(111,140,104,0.4);
   }
 
   /* Parking tooltip popup */
@@ -396,7 +563,7 @@
     font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #7de898;
+    color: #4F6B47;
     margin-bottom: 6px;
   }
  */
@@ -462,7 +629,7 @@
     bottom: 100px;
     left: 32px;
     z-index: 10;
-    background: rgba(22,24,28,0.75);
+    background: rgba(255,255,255,0.75);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 18px;
@@ -505,7 +672,7 @@
     font-size: 16px;
     width: 36px;
     height: 36px;
-    background: rgba(22,24,28,0.85);
+    background: rgba(255,255,255,0.85);
     border: 1px solid var(--border-strong);
     border-radius: 8px;
     color: var(--text-muted);
@@ -556,7 +723,7 @@
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-title">The Collective</div>
+  <div class="loader-title">Nightjar Gallery and Studios</div>
   <div class="loader-bar-track"><div class="loader-bar-fill" id="loader-bar"></div></div>
   <div class="loader-status" id="loader-status">Initializing…</div>
 </div>
@@ -567,8 +734,8 @@
 <!-- HEADER -->
 <header>
   <div class="wordmark">
-    <div class="wordmark-title">The Collective</div>
-    <div class="wordmark-sub">Building Directory</div>
+    <div class="wordmark-title">Nightjar</div>
+    <div class="wordmark-sub">Gallery &amp; Studios</div>
   </div>
   <div class="header-hint">
     <span>Drag</span> to rotate &nbsp;·&nbsp; <span>Scroll</span> to zoom<br>
@@ -579,8 +746,10 @@
 
 <!-- FLOOR NAV -->
 <div id="floor-nav">
+  <button class="floor-btn" data-modal="about">About</button>
   <button class="floor-btn active" data-view="directory">Directory</button>
   <button class="floor-btn" data-view="parking">Parking Map</button>
+  <button class="floor-btn" data-modal="team">Who We Are</button>
 </div>
 
 <!-- LEGEND -->
@@ -638,6 +807,48 @@
       <div class="panel-section-label">Specialisms</div>
       <div class="tag-cloud" id="panel-tags"></div>
     </div>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div id="about-modal" class="page-modal">
+  <div class="page-modal-inner about-inner">
+    <button class="page-modal-close" data-close-modal>✕</button>
+    <div class="about-eyebrow">Nightjar Gallery and Studios</div>
+    <h1 class="about-title">Art &amp; music,<br>rooted in equity.</h1>
+    <p class="about-lede">We are an arts and music resource center and collective — a shared home for creative practice, built on equity and education.</p>
+    <div class="about-grid">
+      <div class="about-block">
+        <div class="about-block-label">Mission</div>
+        <p>We exist to make space — literally and otherwise — for artists and musicians who have historically been shut out of resources, audiences, and rooms of their own. We believe creative practice is a form of education, and education should be radically accessible.</p>
+      </div>
+      <div class="about-block">
+        <div class="about-block-label">What We Do</div>
+        <p>We house studios, rehearsal space, galleries, and classrooms under one roof, and connect our members with mentorship, teaching opportunities, and each other. Every program we run is built around two questions: who is missing from this room, and how do we bring them in?</p>
+      </div>
+      <div class="about-block">
+        <div class="about-block-label">Our Values</div>
+        <div class="tag-cloud">
+          <span class="tag">Equity</span>
+          <span class="tag">Education</span>
+          <span class="tag">Community</span>
+          <span class="tag">Access</span>
+          <span class="tag">Collaboration</span>
+        </div>
+      </div>
+    </div>
+    <button class="about-cta" data-close-modal>Explore the building →</button>
+  </div>
+</div>
+
+<!-- WHO WE ARE MODAL -->
+<div id="team-modal" class="page-modal">
+  <div class="page-modal-inner team-inner">
+    <button class="page-modal-close" data-close-modal>✕</button>
+    <div class="about-eyebrow">Who We Are</div>
+    <h1 class="about-title">The people behind<br>the collective.</h1>
+    <p class="about-lede">A small team of artists, educators, and organizers running things day to day.</p>
+    <div class="team-grid" id="team-grid"></div>
   </div>
 </div>
 
@@ -872,7 +1083,7 @@ const fillLight = new THREE.DirectionalLight(0x6ea8c8, 0.4);
 fillLight.position.set(-8, 5, -6);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xc8a96e, 0.25);
+const rimLight = new THREE.DirectionalLight(0xB9A7D9, 0.25);
 rimLight.position.set(0, -4, -8);
 scene.add(rimLight);
 
@@ -1188,11 +1399,11 @@ function createParkingMarkers() {
     const label = document.createElement('div');
     label.className = 'parking-label hidden';
     label.innerHTML = `
-    <div class="parking-label-bubble" style="${z.color ? `background:rgba(60,55,10,0.93); border-color:rgba(220,200,50,0.45);` : ''}">
-    <span class="parking-label-zone" style="${z.color ? 'color:#e8d44d;' : ''}">${z.name}</span>
-    <span class="parking-label-hours" style="${z.color ? 'color:rgba(230,220,140,0.75);' : ''}">${z.hours}</span>
+    <div class="parking-label-bubble" style="${z.color ? `background:rgba(243,238,248,0.95); border-color:rgba(107,79,160,0.45);` : ''}">
+    <span class="parking-label-zone" style="${z.color ? 'color:#6B4FA0;' : ''}">${z.name}</span>
+    <span class="parking-label-hours" style="${z.color ? 'color:rgba(107,79,160,0.7);' : ''}">${z.hours}</span>
     </div>
-    <div class="parking-label-stem" style="${z.color ? 'background:rgba(220,200,50,0.35);' : ''}"></div>
+    <div class="parking-label-stem" style="${z.color ? 'background:rgba(107,79,160,0.4);' : ''}"></div>
     `;
    
     // label.innerHTML = `
@@ -1424,12 +1635,72 @@ function setView(view) {
   }
 }
 
-document.querySelectorAll('.floor-btn').forEach(btn => {
+document.querySelectorAll('.floor-btn[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.floor-btn[data-view]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     setView(btn.dataset.view);
   });
+});
+
+// ─────────────────────────────────────────────
+// PAGE MODALS (About / Who We Are)
+// ─────────────────────────────────────────────
+const TEAM = [
+  { name: "Imani Carter",  role: "Founder & Executive Director", initials: "IC" },
+  { name: "Devon Marsh",   role: "Co-Founder & Programs Director", initials: "DM" },
+  { name: "Sofia Reyes",   role: "Education Coordinator", initials: "SR" },
+  { name: "Tobias Lin",    role: "Studio & Facilities Manager", initials: "TL" },
+  { name: "Aaliyah Brooks",role: "Community Engagement Lead", initials: "AB" },
+];
+
+function renderTeam() {
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = TEAM.map(p => `
+    <div class="team-card">
+      <div class="team-avatar">${p.initials}</div>
+      <div class="team-name">${p.name}</div>
+      <div class="team-role">${p.role}</div>
+    </div>
+  `).join('');
+}
+renderTeam();
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModals() {
+  document.querySelectorAll('.page-modal').forEach(m => m.classList.remove('open'));
+}
+
+document.querySelectorAll('.floor-btn[data-modal]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openModal(btn.dataset.modal + '-modal');
+    btn.classList.add('active');
+  });
+});
+
+document.querySelectorAll('[data-close-modal]').forEach(el => {
+  el.addEventListener('click', () => {
+    closeModals();
+    document.querySelectorAll('.floor-btn[data-modal]').forEach(b => b.classList.remove('active'));
+  });
+});
+
+document.querySelectorAll('.page-modal').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModals();
+      document.querySelectorAll('.floor-btn[data-modal]').forEach(b => b.classList.remove('active'));
+    }
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModals();
+    document.querySelectorAll('.floor-btn[data-modal]').forEach(b => b.classList.remove('active'));
+  }
 });
 
 // ─────────────────────────────────────────────
@@ -1559,7 +1830,11 @@ const fetchParking = fetch(STL_FILE_PARKING)
 Promise.all([fetchCritical, fetchParking])
   .then(() => {
     setProgress(100, 'Ready');
-    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 400);
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+      openModal('about-modal');
+      document.querySelector('.floor-btn[data-modal="about"]').classList.add('active');
+    }, 400);
   })
   .catch(err => {
     console.error(err);
@@ -1576,3 +1851,4 @@ Promise.all([fetchCritical, fetchParking])
 </script>
 </body>
 </html>
+
